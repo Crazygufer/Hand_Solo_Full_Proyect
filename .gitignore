@@ -1,0 +1,19 @@
+# Ignorar entorno virtual
+venv/
+Whisper/
+
+# Ignorar archivos multimedia pesados
+*.mp4
+*.wav
+*.ogg
+*.mp3
+
+# Ignorar archivos de caché y temporales de Python
+__pycache__/
+*.pyc
+*.pyo
+*.log
+*.tmp
+
+# Ignorar archivos de sistema (macOS)
+.DS_Store
