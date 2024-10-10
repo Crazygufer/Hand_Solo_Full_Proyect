@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Solo Proyect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='images/logo5.jpg') }}" alt="Logo Handi Project">
+        <h1>Handi Project</h1>
+    </header>
+    
+    <main>
+        <section class="description">
+            <h2>Descripción del Proyecto</h2>
+            <p>Este proyecto involucra la creación de un brazo robótico de 5 grados de libertad controlado por comandos de voz. Utiliza tecnología avanzada como Whisper para la transcripción de voz y OpenCV para la visión artificial.</p>
+        </section>
+
+        <section class="team">
+            <h2>Equipo del Proyecto</h2>
+            <ul>
+                <li>Integrante 1</li>
+                <li>Integrante 2</li>
+                <li>Integrante 3</li>
+            </ul>
+        </section>
+
+        <section class="login-register">
+            <h2>Únete al Proyecto</h2>
+            <p>Inicia sesión para acceder a la aplicación.</p>
+            <a href="{{ url_for('login') }}" class="button">Iniciar Sesión</a>
+            <a href="{{ url_for('register') }}" class="button">Regístrate</a>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Hand Solo Proyect</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,145 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #ff0000;
+    color: #ffffff;
+    text-align: center;
+    padding: 1rem;
+    position: relative; /* Para asegurarnos de que el logo y el título estén bien posicionados */
+}
+
+header img {
+    height: 80px; /* Ajusta el tamaño del logo */
+    border-radius: 50%; /* Esto hace que el logo sea circular, puedes ajustar o quitarlo si no lo quieres redondeado */
+    object-fit: cover; /* Asegura que la imagen se ajuste sin deformarse */
+    margin-bottom: 10px; /* Añade espacio entre el logo y el título */
+}
+
+h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+section {
+    padding: 2rem;
+    margin: 0 auto;
+    max-width: 800px;
+}
+
+/* Para las secciones con sombra y bordes redondeados */
+.description, .team, .login-register {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+}
+
+h2 {
+    color: #ff0000;
+    text-align: center;
+}
+
+p {
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+/* Botones centrados y con estilo de hover */
+.login-register {
+    text-align: center;
+}
+
+.button {
+    display: inline-block;
+    background-color: #ff0000;
+    color: #ffffff;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    margin: 10px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    width: 200px; /* Asegura que los botones tengan un tamaño consistente */
+}
+
+/* Hover con un rojo más oscuro */
+.button:hover {
+    background-color: #fc9f8b;
+    cursor: pointer;
+}
+
+/* Estilo para el footer */
+footer {
+    background-color: #ff0000;
+    color: #ffffff;
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Añadir animaciones (opcional para más adelante) */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.description, .team, .login-register {
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Barra de navegación superior */
+nav {
+    background-color: #ff0000; /* Fondo rojo */
+    overflow: hidden; /* Asegura que el contenido no se salga */
+    text-align: center;
+}
+
+nav ul {
+    list-style-type: none; /* Elimina los puntos de la lista */
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline-block; /* Elementos en línea */
+    margin-right: 20px; /* Espacio entre enlaces */
+}
+
+nav ul li a {
+    color: white; /* Texto blanco */
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none; /* Elimina el subrayado */
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease; /* Efecto hover */
+}
+
+nav ul li a:hover {
+    background-color: #df7c7c; /* Fondo más oscuro al pasar el ratón */
+    border-radius: 5px;
+}
+

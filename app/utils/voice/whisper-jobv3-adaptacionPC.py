@@ -13,8 +13,14 @@ engine = pyttsx3.init()
 # Cargar el modelo Whisper
 model = whisper.load_model("medium")
 
-# Agregar FFmpeg al PATH
-os.environ["PATH"] += os.pathsep + r'C:\webm\bin'  # Ajusta esta ruta a tu instalación de FFmpeg
+# Definir rutas específicas para archivos
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))  # Directorio base donde se encuentra este archivo
+AUDIO_DIR = os.path.join(BASE_DIR, "audios")  # Carpeta audios
+TRANSCRIPCIONES_DIR = os.path.join(BASE_DIR, "transcripciones")  # Carpeta transcripciones
+
+# Crear carpetas si no existen
+os.makedirs(AUDIO_DIR, exist_ok=True)
+os.makedirs(TRANSCRIPCIONES_DIR, exist_ok=True)
 
 # Función para generar la respuesta de voz
 def responder_voz(mensaje):
@@ -24,7 +30,10 @@ def responder_voz(mensaje):
 # Función para detectar la wake word y comenzar a transcribir
 def detect_wake_word():
     recognizer = sr.Recognizer()
-    mic = sr.Microphone()
+    #para usar en pc 
+    mic = sr.Microphone(device_index=2)
+    #para usar en notebook
+    #mic = sr.Microphone()
 
     print("Esperando la wake word: 'oye handy'...")
 
@@ -56,36 +65,51 @@ def detect_wake_word():
 
 # Función para transcribir el audio y guardar los datos en un JSON
 def transcribe_audio(mic, recognizer):
-    with mic as source:
-        print("Grabando audio...")
-        audio_data = recognizer.listen(source, timeout=10)  # Graba hasta 10 segundos de audio, ajustable
+    try:
+        # Para PC, especificamos el micrófono
+        mic = sr.Microphone(device_index=2)
 
-        # Guardar el audio en un archivo temporal con ruta absoluta
-        audio_filename = os.path.abspath("audio_temp.wav")
-        with open(audio_filename, "wb") as f:
-            f.write(audio_data.get_wav_data())
+        with mic as source:
+            print("Ajustando para ruido de fondo...")
+            recognizer.adjust_for_ambient_noise(source)
+            print("Iniciando grabación de audio...")
 
-        # Verificar si el archivo existe antes de transcribir
-        while not os.path.exists(audio_filename):
-            print(f"Esperando que el archivo de audio {audio_filename} esté disponible...")
-            time.sleep(1)
+            audio_data = recognizer.listen(source, timeout=20)  # Graba hasta 10 segundos de audio, ajustable
+            print("Audio grabado correctamente...")
 
-        # Usar Whisper para transcribir el archivo de audio
-        print(f"Archivo de audio encontrado: {audio_filename}, iniciando transcripción...")
-        result = model.transcribe(audio_filename, language="es")
-        transcribed_text = result["text"]
+            # Guardar el audio en un archivo temporal dentro de la carpeta audios
+            audio_filename = os.path.join(AUDIO_DIR, "audio_temp.wav")
+            with open(audio_filename, "wb") as f:
+                f.write(audio_data.get_wav_data())
+            
+            print(f"Archivo de audio guardado en: {audio_filename}")
 
-        # Obtener duración del audio (en segundos)
-        duration = get_audio_duration(audio_filename)
+            # Verificar si el archivo existe antes de transcribir
+            if os.path.exists(audio_filename):
+                print(f"Archivo encontrado: {audio_filename}. Iniciando transcripción con Whisper...")
+            else:
+                print(f"Error: Archivo {audio_filename} no encontrado.")
 
-        # Guardar la transcripción y otros datos en un JSON
-        save_transcription_json(transcribed_text, duration)
+            # Usar Whisper para transcribir el archivo de audio
+            result = model.transcribe(audio_filename, language="es")
+            transcribed_text = result["text"]
+            print(f"Transcripción: {transcribed_text}")
 
-        # Eliminar el archivo de audio temporal
-        os.remove(audio_filename)
+            # Obtener duración del audio (en segundos)
+            duration = get_audio_duration(audio_filename)
 
-        # Volver a escuchar después de la transcripción
-        print("Volviendo a escuchar para la wake word 'oye handy'...")
+            # Guardar la transcripción y otros datos en un JSON
+            save_transcription_json(transcribed_text, duration)
+
+            # Eliminar el archivo de audio temporal
+            os.remove(audio_filename)
+            print("Archivo de audio eliminado.")
+
+            # Volver a escuchar después de la transcripción
+            print("Volviendo a escuchar para la wake word 'oye handy'...")
+
+    except Exception as e:
+        print(f"Error durante la grabación o transcripción: {e}")
 
 # Función para obtener la duración del archivo de audio
 def get_audio_duration(audio_file):
@@ -98,7 +122,7 @@ def get_audio_duration(audio_file):
 
 # Función para guardar los datos en un archivo JSON
 def save_transcription_json(transcription, audio_duration):
-    file_name = "transcripciones.json"
+    file_name = os.path.join(TRANSCRIPCIONES_DIR, "transcripciones.json")
 
     # Si ya existe el archivo, carga los datos existentes
     if os.path.exists(file_name):

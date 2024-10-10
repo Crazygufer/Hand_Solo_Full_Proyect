@@ -1,6 +1,6 @@
 # Ignorar entorno virtual
 venv/
-Whisper/
+Handi/
 
 # Ignorar archivos multimedia pesados
 *.mp4

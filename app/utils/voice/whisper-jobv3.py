@@ -5,21 +5,32 @@ import json
 import time
 from datetime import datetime
 import sys
-from playsound import playsound  # Importar playsound para reproducir audio
+import pyttsx3  # Importar pyttsx3 para generar voz
+
+# Configurar pyttsx3 para la respuesta de voz
+engine = pyttsx3.init()
 
 # Cargar el modelo Whisper
 model = whisper.load_model("medium")
 
-# Agregar FFmpeg al PATH
-os.environ["PATH"] += os.pathsep + r'C:\webm\bin'  # Ajusta esta ruta a tu instalación de FFmpeg
+# Definir rutas específicas para archivos
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))  # Directorio base donde se encuentra este archivo
+AUDIO_DIR = os.path.join(BASE_DIR, "audios")  # Carpeta audios
+TRANSCRIPCIONES_DIR = os.path.join(BASE_DIR, "transcripciones")  # Carpeta transcripciones
 
-# Función para reproducir un archivo de audio pregrabado
-def reproducir_audio(audio_path):
-    playsound(audio_path)
+# Crear carpetas si no existen
+os.makedirs(AUDIO_DIR, exist_ok=True)
+os.makedirs(TRANSCRIPCIONES_DIR, exist_ok=True)
+
+# Función para generar la respuesta de voz
+def responder_voz(mensaje):
+    engine.say(mensaje)
+    engine.runAndWait()
 
 # Función para detectar la wake word y comenzar a transcribir
 def detect_wake_word():
     recognizer = sr.Recognizer()
+    # Para usar en notebook
     mic = sr.Microphone()
 
     print("Esperando la wake word: 'oye handy'...")
@@ -37,12 +48,12 @@ def detect_wake_word():
 
             if "oye handy salir" in text:
                 print("Frase de salida detectada: 'oye handy salir'. Terminando programa...")
-                reproducir_audio("audios/salir.mp3")  # Ruta al audio de despedida
+                responder_voz("Adiós, hasta la próxima.")
                 sys.exit()  # Terminar el programa
 
             if "oye handy" in text:
                 print("Wake word detectada, comenzando transcripción...")
-                reproducir_audio("audios/hola.mp3")  # Ruta al audio de respuesta
+                responder_voz("Hola, ¿en qué puedo ayudarte?")
                 transcribe_audio(mic, recognizer)
 
         except sr.UnknownValueError:
@@ -50,15 +61,15 @@ def detect_wake_word():
         except sr.RequestError as e:
             print(f"Error al conectarse al servicio de reconocimiento de voz; {e}")
 
-
 # Función para transcribir el audio y guardar los datos en un JSON
 def transcribe_audio(mic, recognizer):
     with mic as source:
         print("Grabando audio...")
         audio_data = recognizer.listen(source, timeout=10)  # Graba hasta 10 segundos de audio, ajustable
+        print("Audio Grabado...")
 
-        # Guardar el audio en un archivo temporal con ruta absoluta
-        audio_filename = os.path.abspath("audio_temp.wav")
+        # Guardar el audio en un archivo temporal dentro de la carpeta audios
+        audio_filename = os.path.join(AUDIO_DIR, "audio_temp.wav")
         with open(audio_filename, "wb") as f:
             f.write(audio_data.get_wav_data())
 
@@ -95,7 +106,7 @@ def get_audio_duration(audio_file):
 
 # Función para guardar los datos en un archivo JSON
 def save_transcription_json(transcription, audio_duration):
-    file_name = "transcripciones.json"
+    file_name = os.path.join(TRANSCRIPCIONES_DIR, "transcripciones.json")
 
     # Si ya existe el archivo, carga los datos existentes
     if os.path.exists(file_name):
@@ -123,4 +134,3 @@ def save_transcription_json(transcription, audio_duration):
 
 # Iniciar la detección de la wake word
 detect_wake_word()
-
