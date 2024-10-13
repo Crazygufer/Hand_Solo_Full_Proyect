@@ -1,59 +1,115 @@
-{% extends "panel.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='transcription.css') }}">
+    <title>Handi Project - Transcripción de Voz</title>
+</head>
+<body>
+    <header class="header-container">
+        <img src="{{ url_for('static', filename='images/logo_5_transparent.png') }}" alt="Logo">
+        <a href="{{ url_for('panel') }}">HANDI</a>
+        <h1 class="transcription-title">Transcripción de Voz</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('transcripcion') }}">Transcripción de Voz</a></li>
+            <li><a href="{{ url_for('vision_artificial') }}">Visión Artificial</a></li>
+            <li><a href="{{ url_for('cinematica_directa') }}">Cinemática Directa</a></li>
+            <li><a href="{{ url_for('cinematica_inversa') }}">Cinemática Inversa</a></li>
+            <li><a href="{{ url_for('modo_automatico') }}">Modo Automático</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <section>
+            <div class="transcription-panel">
+                <div class="icon-container">
+                    <img src="{{ url_for('static', filename='images/logo_5_transcripcion.png') }}" alt="Escuchar" id="listen-icon" class="listen-icon">
+                    <p>Presiona el ícono para empezar a escuchar</p>
+                </div>
+                <div class="transcription-output">
+                    <div class="button-container">
+                        <button id="start-listening">Iniciar Escucha</button>
+                        <button id="stop-listening">Detener Escucha</button>
+                    </div>
+                    <h3>Estado:</h3>
+                    <p id="status-text">Esperando activación...</p>
+                    <h3>Última Transcripción:</h3>
+                    <pre id="transcribed-text">Aquí aparecerá la última transcripción...</pre>
+                </div>
+            </div>
+        </section>
+    </main>
 
-{% block content %}
-<section>
-    <h2>Transcripción de Voz</h2>
-    <div class="transcription-panel">
-        <div class="icon-container">
-            <img src="{{ url_for('static', filename='microphone.png') }}" alt="Escuchar" id="listen-icon" class="listen-icon">
-            <p>Presiona el ícono para empezar a escuchar</p>
-        </div>
-        <div class="button-container">
-            <button id="start-listening">Iniciar Escucha</button>
-            <button id="stop-listening">Detener Escucha</button>
-        </div>
-        <div class="transcription-output">
-            <h3>Estado:</h3>
-            <p id="status-text">Esperando activación...</p>
-            <h3>Transcripción:</h3>
-            <pre id="transcribed-text">Aquí aparecerá el texto transcrito...</pre>
-            <h3>Salida del Sistema:</h3>
-            <pre id="log-output">Aquí aparecerá la salida del sistema...</pre>
-        </div>
+    <div class="instructions">
+        <p>Para iniciar la transcripción, presiona "Iniciar Escucha" y habla. Handi te escuchará.</p>
     </div>
-</section>
 
-<script>
-    document.getElementById('start-listening').addEventListener('click', function() {
-        fetch('/start_listening')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('status-text').innerText = data.status;
-            });
-    });
+    <footer>
+        <p>&copy; 2024 Handi Project</p>
+    </footer>
 
-    document.getElementById('stop-listening').addEventListener('click', function() {
-        fetch('/stop_listening')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('status-text').innerText = data.status;
-            });
-    });
-
-    // Actualizar transcripciones periódicamente
-    setInterval(function() {
-        fetch('/get_transcription')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('transcribed-text').innerText = data.transcription;
-            });
-
-        // Actualizar salida de logs periódicamente
-        fetch('/get_logs')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('log-output').innerText = data.logs;
-            });
-    }, 2000); // Actualiza cada 2 segundos
-</script>
-{% endblock %}
+    <script>
+        let isListening = false;  // Variable de control para saber si la escucha está activada
+    
+        // Manejar el inicio de la escucha
+        document.getElementById('start-listening').addEventListener('click', function() {
+            fetch('/start_listening')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('status-text').innerText = "Escucha activada";
+                    document.getElementById('status-text').classList.add('active');
+                    document.getElementById('status-text').classList.remove('inactive');
+                    document.getElementById('listen-icon').classList.add('active');  // Añadir pulso a la imagen
+    
+                    // Iniciar polling para actualizar el estado y transcripción
+                    isListening = true;
+                    startPolling();  // Llama a la función que actualiza en tiempo real
+                });
+        });
+    
+        // Manejar la detención de la escucha
+        document.getElementById('stop-listening').addEventListener('click', function() {
+            fetch('/stop_listening')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('status-text').innerText = "Escucha detenida";
+                    document.getElementById('status-text').classList.add('inactive');
+                    document.getElementById('status-text').classList.remove('active');
+                    document.getElementById('listen-icon').classList.remove('active');  // Quitar pulso de la imagen
+    
+                    // Detener el polling
+                    isListening = false;
+                });
+        });
+    
+        // Función para actualizar el estado y la transcripción
+        function updateStateAndTranscription() {
+            if (isListening) {
+                // Actualizar el estado (logs)
+                fetch('/get_state')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('status-text').innerText = data.state;  // Actualizar el estado del backend
+                    });
+    
+                // Actualizar la transcripción
+                fetch('/get_transcription')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('transcribed-text').innerText = data.transcription || "Esperando transcripción...";
+                    });
+            }
+        }
+    
+        // Función para iniciar el polling de actualización en intervalos
+        function startPolling() {
+            setInterval(updateStateAndTranscription, 2000);  // Actualizar cada 2 segundos mientras está activada la escucha
+        }
+    </script>
+    
+</body>
+</html>

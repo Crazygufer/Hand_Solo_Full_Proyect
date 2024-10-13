@@ -3,11 +3,11 @@ from app import app
 from app.utils.function.auth import validar_usuario, usuario_existe, registrar_usuario
 import subprocess
 import json
-from app import app, socketio
-
+import os
 
 # Variable global para almacenar el proceso del script
 process = None
+transcription_data = ""  # Variable global para almacenar la transcripción
 
 # Ruta para la página principal (index)
 @app.route('/')
@@ -59,40 +59,61 @@ def panel():
 def transcripcion():
     return render_template('transcripcion.html')
 
-# Ruta para iniciar la escucha del script
 @app.route('/start_listening', methods=['GET'])
 def start_listening_route():
     global process
     if process is None:
         # Ejecuta el script de escucha como un proceso independiente
-        process = subprocess.Popen(["python", "app/utils/voice/whisper-jobv3.py"])
+        process = subprocess.Popen(["python", "app/utils/voice/whisper_post_transcribe.py"])
         return jsonify({"status": "Escucha iniciada"})
     else:
         return jsonify({"status": "La escucha ya está en curso"})
 
-# Ruta para detener la escucha del script
 @app.route('/stop_listening', methods=['GET'])
 def stop_listening_route():
     global process
     if process is not None:
-        # Termina el proceso si está corriendo
         process.terminate()
         process = None
         return jsonify({"status": "Escucha detenida"})
     else:
         return jsonify({"status": "No hay escucha en curso"})
 
-# Ruta para obtener la transcripción más reciente
+# Ruta para recibir las transcripciones desde el script
+@app.route('/update_transcription', methods=['POST'])
+def update_transcription():
+    global transcription_data
+    transcription_data = request.json.get('transcription', '')
+    return jsonify({"status": "Transcripción recibida"})
+
+# Ruta para obtener la última transcripción desde el archivo transcripciones.json
 @app.route('/get_transcription', methods=['GET'])
 def get_transcription():
-    try:
-        with open('app/utils/voice/transcripciones.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            last_transcription = data[-1] if data else {"transcription": "No hay transcripciones disponibles."}
-    except FileNotFoundError:
-        last_transcription = {"transcription": "No se encontró el archivo de transcripciones."}
+    transcriptions_file = os.path.join('app', 'transcripciones', 'transcripciones.json')
 
-    return jsonify(last_transcription)
+    try:
+        # Leer el archivo transcripciones.json
+        with open(transcriptions_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if data:
+                last_transcription = data[-1]  # Obtener la última transcripción
+                return jsonify({
+                    "transcription": f"Última transcripción realizada: {last_transcription['transcription']}",
+                    "timestamp": last_transcription['timestamp']
+                })
+            else:
+                return jsonify({"transcription": "No hay transcripciones disponibles."})
+    except FileNotFoundError:
+        return jsonify({"transcription": "El archivo transcripciones.json no se encontró."})
+    except json.JSONDecodeError:
+        return jsonify({"transcription": "Error al leer el archivo transcripciones.json."})
+
+
+# Ruta para obtener el estado (logs) desde el script
+@app.route('/get_state', methods=['GET'])
+def get_state():
+    global transcription_data  # Aquí se almacenan los mensajes de estado
+    return jsonify({"state": transcription_data or "Esperando activación..."})
 
 # Rutas para otras funciones
 @app.route('/palabras_clave')
@@ -114,13 +135,3 @@ def cinematica_inversa():
 @app.route('/modo_automatico')
 def modo_automatico():
     return render_template('modo_automatico.html')
-
-@socketio.on('connect')
-def handle_connect():
-    print('Cliente conectado')
-    socketio.emit('log', {'message': 'Conexión establecida con el servidor'})
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    print('Cliente desconectado')
-

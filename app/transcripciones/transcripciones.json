@@ -10,5 +10,73 @@
         "transcription": " ¿Cómo te vas, choro? ¿Puedes bailar?",
         "timestamp": "2024-10-10 21:49:04",
         "audio_duration": "4.0 segundos"
+    },
+    {
+        "interaction_id": 3,
+        "transcription": " ¿Cómo está?",
+        "timestamp": "2024-10-12 23:27:50",
+        "audio_duration": "2.2 segundos"
+    },
+    {
+        "interaction_id": 4,
+        "transcription": " Voy a grabar el siguiente audio.",
+        "timestamp": "2024-10-12 23:31:11",
+        "audio_duration": "2.3 segundos"
+    },
+    {
+        "interaction_id": 5,
+        "transcription": " Graba el siguiente audio.",
+        "timestamp": "2024-10-12 23:36:07",
+        "audio_duration": "2.1 segundos"
+    },
+    {
+        "interaction_id": 6,
+        "transcription": " No llegan de salir.",
+        "timestamp": "2024-10-12 23:48:03",
+        "audio_duration": "2.0 segundos"
+    },
+    {
+        "transcription": " Voy a grabar el siguiente audio por favor.",
+        "timestamp": "2024-10-13 00:57:49"
+    },
+    {
+        "transcription": " Siguiente audio por favor.",
+        "timestamp": "2024-10-13 00:58:40"
+    },
+    {
+        "transcription": " Voy a grabar el siguiente audio.",
+        "timestamp": "2024-10-13 01:05:11"
+    },
+    {
+        "transcription": " Andy, necesito que bailes.",
+        "timestamp": "2024-10-13 01:05:59"
+    },
+    {
+        "transcription": " necesito que bailes",
+        "timestamp": "2024-10-13 01:19:08"
+    },
+    {
+        "transcription": "",
+        "timestamp": "2024-10-13 01:19:39"
+    },
+    {
+        "transcription": " y traduque el siguiente texto.",
+        "timestamp": "2024-10-13 01:39:30"
+    },
+    {
+        "transcription": " Necesito que hagas una transcripción del siguiente texto.",
+        "timestamp": "2024-10-13 01:40:02"
+    },
+    {
+        "transcription": " Transcribe el siguiente texto. Iniciar escucha.",
+        "timestamp": "2024-10-13 01:44:39"
+    },
+    {
+        "transcription": " Iniciar escucha y habla.",
+        "timestamp": "2024-10-13 01:49:35"
+    },
+    {
+        "transcription": "",
+        "timestamp": "2024-10-13 02:10:39"
     }
 ]

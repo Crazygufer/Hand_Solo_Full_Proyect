@@ -1,0 +1,232 @@
+/* Estilos base heredados */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Encabezado con logo a la izquierda y enlace "HANDI" */
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background-color: #ff0000;
+    padding: 1rem;
+}
+
+.transcription-title {
+    color: white;
+    text-align: center;
+    font-size: 2.5rem;
+    margin-top: 20px;
+    margin-left: 280px;
+}
+
+.header-container img {
+    height: 70px;
+    margin-right: 10px;
+}
+
+.header-container a {
+    color: white;
+    font-weight: bold;
+    font-size: 1.8rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.header-container a:hover {
+    color: #fc9f8b;
+}
+
+.instructions {
+    text-align: center;
+    font-size: 1rem;
+    color: #333;
+    margin-top: 20px;
+}
+
+/* Estilos específicos para la transcripción de voz */
+.transcription-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
+}
+
+.icon-container {
+    flex: 0 0 auto;
+    text-align: center;
+    padding-right: 20px;
+    justify-content: center;
+}
+
+.listen-icon {
+    width: 150px;
+    transition: transform 0.3s ease;
+}
+
+.listen-icon.active {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.transcription-output {
+    flex-grow: 1;
+    margin-left: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.transcription-output h3 {
+    color: #ff0000;
+    margin-bottom: 10px;
+}
+
+.button-container {
+    margin-top: 10px;
+    text-align: center;
+}
+
+button {
+    background-color: #ff0000;
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #df7c7c;
+}
+
+/* Estilo para el footer */
+footer {
+    background-color: #ff0000;
+    color: #ffffff;
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Animación de pulso */
+.listen-icon {
+    width: 150px;
+    transition: transform 0.3s ease;
+}
+
+.listen-icon.active {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Estado activado */
+#status-text.active {
+    color: green;
+    font-weight: bold;
+    animation: listening-blink 1s infinite alternate;
+}
+
+@keyframes listening-blink {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.5;
+    }
+}
+
+/* Estado desactivado */
+#status-text.inactive {
+    color: red;
+    font-weight: bold;
+}
+
+
+/* Efecto para resaltar la última transcripción */
+#transcribed-text {
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+/* Añadir animación de fade-in */
+.transcription-output, .button-container {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Barra de navegación superior */
+nav {
+    background-color: #ff0000;
+    overflow: hidden;
+    text-align: center;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover {
+    background-color: #df7c7c;
+    border-radius: 5px;
+}
