@@ -5,10 +5,12 @@ import json
 import time
 from datetime import datetime
 import sys
-import pyttsx3  # Importar pyttsx3 para generar voz
+import pyttsx3
+from flask_socketio import SocketIO, emit
 
 # Configurar pyttsx3 para la respuesta de voz
 engine = pyttsx3.init()
+socketio = SocketIO(message_queue='redis://')
 
 # Cargar el modelo Whisper
 model = whisper.load_model("medium")
@@ -30,36 +32,33 @@ def responder_voz(mensaje):
 # Función para detectar la wake word y comenzar a transcribir
 def detect_wake_word():
     recognizer = sr.Recognizer()
-    # Para usar en notebook
     mic = sr.Microphone()
 
-    print("Esperando la wake word: 'oye handy'...")
-
+    socketio.emit('log', {'message': "Esperando la wake word: 'oye handy'..."})
     while True:
         with mic as source:
             recognizer.adjust_for_ambient_noise(source)
-            print("Escuchando...")
+            socketio.emit('log', {'message': "Escuchando..."})
             audio = recognizer.listen(source)
 
         try:
-            # Usar reconocimiento de Google para detectar la wake word
             text = recognizer.recognize_google(audio, language="es-ES").lower()
-            print(f"Has dicho: {text}")
+            socketio.emit('log', {'message': f"Has dicho: {text}"})
 
             if "oye handy salir" in text:
-                print("Frase de salida detectada: 'oye handy salir'. Terminando programa...")
+                socketio.emit('log', {'message': "Frase de salida detectada: 'oye handy salir'. Terminando programa..."})
                 responder_voz("Adiós, hasta la próxima.")
                 sys.exit()  # Terminar el programa
 
             if "oye handy" in text:
-                print("Wake word detectada, comenzando transcripción...")
+                socketio.emit('log', {'message': "Wake word detectada, comenzando transcripción..."})
                 responder_voz("Hola, ¿en qué puedo ayudarte?")
                 transcribe_audio(mic, recognizer)
 
         except sr.UnknownValueError:
-            print("No se entendió el audio.")
+            socketio.emit('log', {'message': "No se entendió el audio."})
         except sr.RequestError as e:
-            print(f"Error al conectarse al servicio de reconocimiento de voz; {e}")
+            socketio.emit('log', {'message': f"Error al conectarse al servicio de reconocimiento de voz; {e}"})
 
 # Función para transcribir el audio y guardar los datos en un JSON
 def transcribe_audio(mic, recognizer):
