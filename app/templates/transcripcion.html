@@ -1,0 +1,59 @@
+{% extends "panel.html" %}
+
+{% block content %}
+<section>
+    <h2>Transcripción de Voz</h2>
+    <div class="transcription-panel">
+        <div class="icon-container">
+            <img src="{{ url_for('static', filename='microphone.png') }}" alt="Escuchar" id="listen-icon" class="listen-icon">
+            <p>Presiona el ícono para empezar a escuchar</p>
+        </div>
+        <div class="button-container">
+            <button id="start-listening">Iniciar Escucha</button>
+            <button id="stop-listening">Detener Escucha</button>
+        </div>
+        <div class="transcription-output">
+            <h3>Estado:</h3>
+            <p id="status-text">Esperando activación...</p>
+            <h3>Transcripción:</h3>
+            <pre id="transcribed-text">Aquí aparecerá el texto transcrito...</pre>
+            <h3>Salida del Sistema:</h3>
+            <pre id="log-output">Aquí aparecerá la salida del sistema...</pre>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.getElementById('start-listening').addEventListener('click', function() {
+        fetch('/start_listening')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status-text').innerText = data.status;
+            });
+    });
+
+    document.getElementById('stop-listening').addEventListener('click', function() {
+        fetch('/stop_listening')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status-text').innerText = data.status;
+            });
+    });
+
+    // Actualizar transcripciones periódicamente
+    setInterval(function() {
+        fetch('/get_transcription')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('transcribed-text').innerText = data.transcription;
+            });
+
+        // Actualizar salida de logs periódicamente
+        fetch('/get_logs')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('log-output').innerText = data.logs;
+            });
+    }, 2000); // Actualiza cada 2 segundos
+</script>
+{% endblock %}

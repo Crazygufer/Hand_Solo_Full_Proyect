@@ -1,14 +1,14 @@
 [
     {
         "interaction_id": 1,
-        "transcription": " Trata de grabar el siguiente audio en donde vamos a reconocer una pila",
-        "timestamp": "2024-09-22 02:17:20",
-        "audio_duration": "5.1 segundos"
+        "transcription": " Gracias. Gracias. Buen día. Bien.",
+        "timestamp": "2024-10-10 21:39:06",
+        "audio_duration": "4.2 segundos"
     },
     {
         "interaction_id": 2,
-        "transcription": " la transcripción de texto.",
-        "timestamp": "2024-09-22 02:50:55",
-        "audio_duration": "1.4 segundos"
+        "transcription": " ¿Cómo te vas, choro? ¿Puedes bailar?",
+        "timestamp": "2024-10-10 21:49:04",
+        "audio_duration": "4.0 segundos"
     }
 ]
