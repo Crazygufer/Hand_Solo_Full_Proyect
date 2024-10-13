@@ -74,7 +74,7 @@ def transcribe_audio(mic, recognizer):
             recognizer.adjust_for_ambient_noise(source)
             print("Iniciando grabación de audio...")
 
-            audio_data = recognizer.listen(source, timeout=20)  # Graba hasta 10 segundos de audio, ajustable
+            audio_data = recognizer.listen(source, timeout=10)  # Graba hasta 10 segundos de audio, ajustable
             print("Audio grabado correctamente...")
 
             # Guardar el audio en un archivo temporal dentro de la carpeta audios

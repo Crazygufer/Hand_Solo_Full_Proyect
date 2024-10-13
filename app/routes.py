@@ -66,6 +66,7 @@ def start_listening_route():
     if process is None:
         # Ejecuta el script de escucha como un proceso independiente
         process = subprocess.Popen(["python", "app/utils/voice/whisper-jobv3.py"])
+        #process = subprocess.Popen(["python", "app/utils/voice/whisper-jobv3-adaptacionPC.py"])
         return jsonify({"status": "Escucha iniciada"})
     else:
         return jsonify({"status": "La escucha ya está en curso"})
