@@ -4,6 +4,7 @@ from app.utils.function.auth import validar_usuario, usuario_existe, registrar_u
 import subprocess
 import json
 import os
+import sys
 
 # Variable global para almacenar el proceso del script
 process = None
@@ -65,7 +66,7 @@ def start_listening_route():
     global process
     if process is None:
         # Ejecuta el script de escucha como un proceso independiente usando el nuevo whisper_post_transcribe con POO
-        process = subprocess.Popen([r"C:\Users\enfparedes\Contacts\Hand_Solo_Full_Proyect\venv\Scripts\python.exe", "app/utils/voice/whisper_post_transcribe.py"])
+        process = subprocess.Popen([sys.executable, "app/utils/voice/whisper_post_transcribe.py"])
         return jsonify({"status": "Escucha iniciada"})
     else:
         return jsonify({"status": "La escucha ya está en curso"})
