@@ -59,16 +59,18 @@ def panel():
 def transcripcion():
     return render_template('transcripcion.html')
 
+# Ruta para iniciar el proceso de escucha
 @app.route('/start_listening', methods=['GET'])
 def start_listening_route():
     global process
     if process is None:
-        # Ejecuta el script de escucha como un proceso independiente
-        process = subprocess.Popen(["python", "app/utils/voice/whisper_post_transcribe.py"])
+        # Ejecuta el script de escucha como un proceso independiente usando el nuevo whisper_post_transcribe con POO
+        process = subprocess.Popen([r"C:\Users\enfparedes\Contacts\Hand_Solo_Full_Proyect\venv\Scripts\python.exe", "app/utils/voice/whisper_post_transcribe.py"])
         return jsonify({"status": "Escucha iniciada"})
     else:
         return jsonify({"status": "La escucha ya está en curso"})
 
+# Ruta para detener el proceso de escucha
 @app.route('/stop_listening', methods=['GET'])
 def stop_listening_route():
     global process
@@ -107,7 +109,6 @@ def get_transcription():
         return jsonify({"transcription": "El archivo transcripciones.json no se encontró."})
     except json.JSONDecodeError:
         return jsonify({"transcription": "Error al leer el archivo transcripciones.json."})
-
 
 # Ruta para obtener el estado (logs) desde el script
 @app.route('/get_state', methods=['GET'])
