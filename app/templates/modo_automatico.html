@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='automatic_mode.css') }}">
+    <title>Handi Project - Modo Automático</title>
+</head>
+<body>
+    <header class="header-container">
+        <img src="{{ url_for('static', filename='images/logo_5_transparent.png') }}" alt="Logo">
+        <a href="{{ url_for('panel') }}">HANDI</a>
+        <h1 class="automatic-title">Modo Automático</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('transcripcion') }}">Transcripción de Voz</a></li>
+            <li><a href="{{ url_for('vision_artificial') }}">Visión Artificial</a></li>
+            <li><a href="{{ url_for('cinematica_directa') }}">Cinemática Directa</a></li>
+            <li><a href="{{ url_for('cinematica_inversa') }}">Cinemática Inversa</a></li>
+            <li><a href="{{ url_for('modo_automatico') }}">Modo Automático</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section>
+            <div class="automatic-panel">
+                <!-- Panel de Estado de Escucha -->
+                <div class="state-container">
+                    <h3>Estado de la Escucha:</h3>
+                    <p id="state-text">Esperando activación...</p>
+                </div>
+
+                <!-- Panel de Transcripción -->
+                <div class="transcription-container">
+                    <h3>Última Transcripción:</h3>
+                    <pre id="transcription-text">Aquí aparecerá la transcripción...</pre>
+                </div>
+
+                <!-- Panel de Palabra Clave Detectada -->
+                <div class="keyword-container">
+                    <h3>Palabra Clave Detectada:</h3>
+                    <p id="keyword-text">Ninguna palabra clave detectada aún.</p>
+                </div>
+
+                <!-- Panel de Acción del Robot -->
+                <div class="action-container">
+                    <h3>Acción del Robot:</h3>
+                    <p id="action-text">Esperando comandos...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Handi Project</p>
+    </footer>
+
+    <script>
+        let isListening = false;  // Variable para controlar si el sistema está en escucha
+
+        // Función para iniciar la escucha
+        document.getElementById('start-listening').addEventListener('click', function() {
+            fetch('/start_listening')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('state-text').innerText = "Escucha activada";
+                    isListening = true;
+                    startPolling();
+                });
+        });
+
+        // Función para detener la escucha
+        document.getElementById('stop-listening').addEventListener('click', function() {
+            fetch('/stop_listening')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('state-text').innerText = "Escucha detenida";
+                    isListening = false;
+                });
+        });
+
+        // Polling para actualizar estado, transcripción y palabra clave
+        function updateData() {
+            if (isListening) {
+                // Actualizar el estado
+                fetch('/get_state')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('state-text').innerText = data.state;
+                    });
+
+                // Actualizar la transcripción
+                fetch('/get_transcription')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('transcription-text').innerText = data.transcription || "Esperando transcripción...";
+                    });
+
+                // Actualizar palabra clave detectada
+                fetch('/get_keyword')  // Supuesto endpoint para palabras clave
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('keyword-text').innerText = data.keyword || "Ninguna palabra clave detectada aún.";
+                        document.getElementById('action-text').innerText = data.action || "Esperando comandos...";
+                    });
+            }
+        }
+
+        function startPolling() {
+            setInterval(updateData, 2000);  // Actualizar cada 2 segundos
+        }
+    </script>
+
+</body>
+</html>
