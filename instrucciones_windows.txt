@@ -1,0 +1,37 @@
+Configuración del Proyecto Handi: Instrucciones para Windows
+1. Clonar el Proyecto
+Clona el repositorio de GitHub en tu máquina local y accede al directorio del proyecto:
+
+bash
+Copiar código
+git clone <URL-del-repositorio>
+cd Hand_Solo_Full_Proyect
+2. Crear y Activar el Entorno Virtual
+Para mantener las dependencias aisladas, primero crea y activa un entorno virtual:
+
+bash
+Copiar código
+python -m venv venv
+venv\Scripts\activate
+3. Instalar las Dependencias del Proyecto
+Con el entorno virtual activado, instala las dependencias listadas en requirements.txt:
+
+bash
+Copiar código
+pip install -r requirements.txt
+Nota: El archivo requirements.txt incluye pywin32, una biblioteca exclusiva de Windows, que es necesaria si deseas usar el proyecto en este sistema operativo.
+
+4. Instalar ffmpeg
+En Windows, para instalar ffmpeg:
+
+Descarga el archivo de ffmpeg desde ffmpeg.org.
+Extrae los archivos en una ubicación de fácil acceso (por ejemplo, C:\ffmpeg).
+Agrega la ruta de ffmpeg (la carpeta bin dentro de la ubicación donde extrajiste los archivos) a las variables de entorno para que esté disponible desde cualquier terminal.
+5. Instalar Whisper, SpeechRecognition y pyttsx3
+Ejecuta el siguiente comando para instalar openai-whisper, SpeechRecognition y pyttsx3:
+
+bash
+Copiar código
+pip install openai-whisper SpeechRecognition pyttsx3
+6. Ejecutar el Proyecto
+Asegúrate de que el entorno virtual esté activado y luego ejecuta el script principal o inicia la aplicación según la configuración del proyecto.

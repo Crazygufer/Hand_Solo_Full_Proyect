@@ -11,6 +11,20 @@ import requests
 # Configurar pyttsx3 para la respuesta de voz
 engine = pyttsx3.init()
 
+voices = engine.getProperty('voices')
+
+# Selecciona una voz específica basada en el índice o nombre
+for voice in voices:
+    print(voice.id)  # Muestra todas las voces disponibles
+
+# Puedes seleccionar una voz específica (ajusta el índice según la lista)
+engine.setProperty('voice', voices[0].id)  # Cambia el índice según prefieras
+
+# Ajusta otros parámetros
+engine.setProperty('rate', 150)  # Velocidad de la voz
+engine.setProperty('volume', 0.9)  # Volumen (0.0 a 1.0)
+
+
 # Definir rutas específicas para archivos
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 AUDIO_DIR = os.path.join(BASE_DIR, "audios")

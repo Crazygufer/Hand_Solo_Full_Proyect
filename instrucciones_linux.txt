@@ -1,0 +1,38 @@
+Configuración del Proyecto Handi: Instrucciones para Ubuntu/Linux
+1. Clonar el Proyecto
+Clona el repositorio de GitHub en tu máquina local y accede al directorio del proyecto:
+
+bash
+Copiar código
+git clone <URL-del-repositorio>
+cd Hand_Solo_Full_Proyect
+2. Crear y Activar el Entorno Virtual
+Crea un entorno virtual para aislar las dependencias del proyecto:
+
+bash
+Copiar código
+python3 -m venv venv
+source venv/bin/activate
+3. Instalar Dependencias de Python
+Instala todas las dependencias listadas en requirements.txt:
+
+bash
+Copiar código
+pip install -r requirements.txt
+Nota: Aunque requirements.txt incluye pywin32, una biblioteca exclusiva de Windows, esta no afectará el entorno en Ubuntu.
+
+4. Instalar ffmpeg
+Instala ffmpeg en Ubuntu utilizando el siguiente comando:
+
+bash
+Copiar código
+sudo apt install ffmpeg
+5. Instalar Whisper, SpeechRecognition y pyttsx3
+Con el entorno virtual activado, instala openai-whisper, SpeechRecognition y pyttsx3:
+
+bash
+Copiar código
+pip install openai-whisper SpeechRecognition pyttsx3
+6. Ejecutar el Proyecto
+Con el entorno virtual activado, ejecuta el script principal o inicia la aplicación según la configuración del proyecto.
+
