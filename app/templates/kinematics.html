@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='kinematics.css') }}">
+    <title>Handi Project - Cinemáticas</title>
+</head>
+<body>
+    <header class="header-container">
+        <img src="{{ url_for('static', filename='images/logo_5_transparent.png') }}" alt="Logo">
+        <a href="{{ url_for('panel') }}">HANDI</a>
+        <h1 class="kinematics-title">Cinemáticas</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('transcripcion') }}">Transcripción de Voz</a></li>
+            <li><a href="{{ url_for('vision_artificial') }}">Visión Artificial</a></li>
+            <li><a href="{{ url_for('kinematics') }}">Cinemáticas</a></li>
+            <li><a href="{{ url_for('modo_automatico') }}">Modo Automático</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section class="content-panel">
+            <!-- Contenedor principal para el formulario y la matriz -->
+            <div class="form-matrix-container">
+                <div class="form-container">
+                    <h2 class="section-title">Forward Kinematics</h2>
+                    <form id="kinematics-form">
+                        <label for="q1">Ángulo para q1 (°):</label>
+                        <input type="number" id="q1" name="q1" required>
+                        
+                        <label for="q2">Ángulo para q2 (°):</label>
+                        <input type="number" id="q2" name="q2" required>
+                        
+                        <label for="q3">Ángulo para q3 (°):</label>
+                        <input type="number" id="q3" name="q3" required>
+                        
+                        <label for="q4">Ángulo para q4 (°):</label>
+                        <input type="number" id="q4" name="q4" required>
+                        
+                        <label for="q5">Ángulo para q5 (°):</label>
+                        <input type="number" id="q5" name="q5" required>
+                        
+                        <!-- Botón de Calcular Cinemática -->
+                        <button type="submit">Calcular Cinemática</button>
+                    </form>
+                </div>
+
+                <!-- Panel de Resultados de Cinemáticas -->
+                <div class="matrix-container">
+                    <h3>Matriz de Transformación:</h3>
+                    <pre id="matrix-output">Esperando valores...</pre>
+
+                    <h3>Posición:</h3>
+                    <p id="position-output">Px: ---, Py: ---, Pz: ---</p>
+
+                    <h3>Ángulos de Euler:</h3>
+                    <p id="euler-output">a: ---, b: ---, g: ---</p>
+
+                    <p id="error-message" style="color: red;"></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Handi Project</p>
+    </footer>
+
+    <script>
+        document.getElementById("kinematics-form").addEventListener("submit", async (e) => {
+            e.preventDefault();  // Prevenir que el formulario se envíe de forma tradicional
+            
+            // Capturar valores de los ángulos
+            const data = {
+                q1: parseFloat(document.getElementById("q1").value),
+                q2: parseFloat(document.getElementById("q2").value),
+                q3: parseFloat(document.getElementById("q3").value),
+                q4: parseFloat(document.getElementById("q4").value),
+                q5: parseFloat(document.getElementById("q5").value)
+            };
+
+            // Enviar la solicitud POST al servidor
+            const response = await fetch("/Kinematics", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            // Manejar la respuesta
+            const result = await response.json();
+            if (response.ok) {
+                // Mostrar la matriz de transformación
+                document.getElementById("matrix-output").innerText = result.matrix;
+
+                // Mostrar la posición Px, Py, Pz
+                document.getElementById("position-output").innerText = `Px: ${result.Px}, Py: ${result.Py}, Pz: ${result.Pz}`;
+
+                // Mostrar los ángulos de Euler a, b, g
+                document.getElementById("euler-output").innerText = `a: ${result.a}, b: ${result.b}, g: ${result.g}`;
+            } else {
+                // Mostrar mensaje de error
+                document.getElementById("error-message").innerText = result.error || "Error desconocido";
+            }
+        });
+    </script>
+</body>
+</html>

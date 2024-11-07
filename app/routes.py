@@ -1,6 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from app import app
 from app.utils.function.auth import validar_usuario, usuario_existe, registrar_usuario
+from app.utils.kinematics.Kinematics import calculate_transformation_matrix
 import subprocess
 import json
 import os
@@ -133,6 +134,42 @@ def cinematica_directa():
 @app.route('/cinematica_inversa')
 def cinematica_inversa():
     return render_template('cinematica_inversa.html')
+
+#@app.route('/Kinematics')
+#def kinematics():
+#    return render_template('kinematics.html')
+
+@app.route('/Kinematics', methods=['GET', 'POST'])
+def kinematics():
+    if request.method == 'POST':
+        # Obtener los datos enviados en la solicitud
+        data = request.json
+        q1 = data.get('q1', 0)
+        q2 = data.get('q2', 0)
+        q3 = data.get('q3', 0)
+        q4 = data.get('q4', 0)
+        q5 = data.get('q5', 0)
+
+        # Calcular la matriz de transformación y valores adicionales
+        result, error = calculate_transformation_matrix(q1, q2, q3, q4, q5)
+
+        # Manejar la respuesta según si hubo un error
+        if error:
+            return jsonify({"error": error}), 500
+
+        # Si el cálculo fue exitoso, devolver la matriz de transformación y valores adicionales
+        return jsonify({
+            "matrix": str(result["matrix"]),
+            "Px": result["Px"],
+            "Py": result["Py"],
+            "Pz": result["Pz"],
+            "a": result["a"],
+            "b": result["b"],
+            "g": result["g"]
+        })
+
+    # Renderizar la página de cinemáticas en caso de una solicitud GET
+    return render_template('kinematics.html')
 
 @app.route('/modo_automatico')
 def modo_automatico():

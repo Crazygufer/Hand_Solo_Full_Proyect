@@ -13,10 +13,10 @@ j5 = sim.getObject('/Base_01_invisible/q5')
 conn = sim.getObject('/Base_01_invisible/14_Pinza_01')
 
 # y movemos a una posicion deseada
-q1 = 0 * 3.1416/180
-q2 = 55 * 3.1416/180
-q3 = 0 * 3.1416/180
-q4 = 0 * 3.1416/180
+q1 = 90 * 3.1416/180
+q2 = 45 * 3.1416/180
+q3 = 30 * 3.1416/180
+q4 = 30 * 3.1416/180
 q5 = 0 * 3.1416/180
 
 sim.setJointTargetPosition(j1, q1)

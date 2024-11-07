@@ -1,0 +1,227 @@
+/* Estilos generales */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Encabezado con logo a la izquierda y enlace "HANDI" */
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;  
+    background-color: #ff0000;
+    padding: 1rem;
+    position: relative;  
+}
+
+.kinematics-title {
+    color: white;
+    text-align: center;
+    font-size: 2.5rem;
+}
+
+/* Imagen del logo */
+.header-container img {
+    height: 50px; /* Tamaño más pequeño para que no se vea gigante */
+    margin-right: 10px;
+    position: absolute;
+    left: 20px;
+}
+
+/* Estilos para el enlace HANDI */
+.header-container a {
+    color: white; /* Color blanco */
+    font-weight: bold;
+    font-size: 1.8rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    position: absolute;
+    left: 100px;
+}
+
+.header-container a:hover {
+    color: #fc9f8b; /* Color en hover */
+}
+
+/* Barra de navegación */
+nav {
+    background-color: #ff0000;
+    overflow: hidden;
+    text-align: center;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: white;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover {
+    background-color: #df7c7c;
+    border-radius: 5px;
+}
+
+/* Panel principal */
+.kinematics-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+}
+
+/* Contenedor principal del formulario y los resultados */
+.form-matrix-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* Formulario */
+.form-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 300px;
+}
+
+form label {
+    display: block;
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #333;
+}
+
+form input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #ff0000;
+    color: white;
+    padding: 10px 20px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #df7c7c;
+}
+
+/* Contenedor de la Matriz y Resultados */
+.matrix-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: auto;
+    text-align: left;
+}
+
+.matrix-container h3 {
+    color: #ff0000;
+    margin-bottom: 10px;
+}
+
+/* Output de la matriz */
+#matrix-output {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 1.1rem;
+    color: #333;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    white-space: pre-wrap;
+    margin-top: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+/* Estilos para la sección de Posición */
+#position-output {
+    font-size: 1.1rem;
+    color: #333;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-top: 10px;
+}
+
+/* Estilos para la sección de Ángulos de Euler */
+#euler-output {
+    font-size: 1.1rem;
+    color: #333;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-top: 10px;
+}
+
+/* Footer */
+footer {
+    background-color: #ff0000;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    margin-top: 20px; /* Añadir un margen superior para separación */
+    width: 100%;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    color: #ff0000;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Estilos para el botón */
+button {
+    background-color: #ff0000;  /* Fondo rojo */
+    color: white;               /* Texto blanco */
+    padding: 10px 20px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: block;             /* Asegura que sea visible y en bloque */
+    text-align: center;         /* Centra el texto en el botón */
+    width: 100%;                /* Ocupa el ancho del formulario */
+}
+
+button:hover {
+    background-color: #df7c7c;  /* Cambia de color en hover */
+}
+
