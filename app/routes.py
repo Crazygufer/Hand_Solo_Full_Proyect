@@ -7,12 +7,34 @@ import json
 import os
 import sys
 import time
+import requests
 
 # Variable global para almacenar el proceso del script
 process = None
 transcription_data = ""  # Variable global para almacenar la transcripción
 current_session_id = None  # Identificador único para la sesión actual
 keyword_detected = ""  # Última palabra clave detect
+
+ESP32_IP = "http://192.168.56.46"  # Reemplaza con la IP de tu ESP32
+
+# Funciones de conversión para los servos
+def convertir_grados_coppelia_a_real_servo1(angulo_coppelia):
+    return angulo_coppelia + 90
+
+def convertir_grados_coppelia_a_real_servo2(angulo_coppelia):
+    return angulo_coppelia + 90
+
+def convertir_grados_coppelia_a_real_servo3_espejado(angulo_coppelia):
+    return 180 - (angulo_coppelia + 90)  # Espejo de Servo 2
+
+def convertir_grados_coppelia_a_real_servo45(angulo_coppelia):
+    return -angulo_coppelia + 90
+
+def convertir_grados_coppelia_a_real_servo6(angulo_coppelia):
+    return angulo_coppelia  # Sin cambios específicos
+
+def convertir_grados_coppelia_a_real_gripper(angulo_coppelia):
+    return angulo_coppelia  # Sin cambios específicos para el gripper
 
 # Ruta para la página principal (index)
 @app.route('/')
@@ -293,3 +315,50 @@ def get_detected_keyword():
             "keyword": "Error al leer el archivo de resultados.",
             "action": "Esperando comandos..."
         })
+    
+# Endpoint para recibir y procesar el ángulo
+@app.route('/set_angle', methods=['POST'])
+def set_angle():
+    data = request.get_json()
+    servo = data.get('motor')
+    angulo = data.get('angle')
+
+    # Validar que el ángulo esté en el rango permitido (-90 a 90)
+    if angulo < -90 or angulo > 90:
+        return jsonify({"error": f"Ángulo {angulo} fuera del rango permitido (-90 a 90)."}), 400
+
+    # Aplicar la conversión de acuerdo al servo
+    if servo == 1:  # Servo 1 corresponde a q1
+        angulo_convertido = convertir_grados_coppelia_a_real_servo1(angulo)
+        enviar_angulo_al_esp32(0, angulo_convertido)
+    elif servo == 2:  # Servo 2 corresponde a q2.1, Servo 3 en espejo
+        angulo_convertido = convertir_grados_coppelia_a_real_servo2(angulo)
+        enviar_angulo_al_esp32(1, angulo_convertido)  # Enviar para Servo 2
+        enviar_angulo_al_esp32(2, convertir_grados_coppelia_a_real_servo3_espejado(angulo))  # Enviar espejado para Servo 3
+    elif servo == 4:  # Servo 4 corresponde a q3
+        angulo_convertido = convertir_grados_coppelia_a_real_servo45(angulo)
+        enviar_angulo_al_esp32(3, angulo_convertido)
+    elif servo == 5:  # Servo 5 corresponde a q4
+        angulo_convertido = convertir_grados_coppelia_a_real_servo45(angulo)
+        enviar_angulo_al_esp32(4, angulo_convertido)
+    elif servo == 6:  # Servo 6 corresponde a q5
+        angulo_convertido = convertir_grados_coppelia_a_real_servo6(angulo)
+        enviar_angulo_al_esp32(5, angulo_convertido)
+    elif servo == 7:  # Servo 7 corresponde al gripper (efector)
+        angulo_convertido = convertir_grados_coppelia_a_real_gripper(angulo)
+        print("el angulo convertido es: ", angulo_convertido)
+        enviar_angulo_al_esp32(6, angulo_convertido)
+    else:
+        return jsonify({"error": f"Servo {servo} no reconocido."}), 400
+
+    return jsonify({"message": f"Ángulo del servo {servo} establecido a {angulo} grados (convertido a {angulo_convertido})"}), 200
+
+# Función auxiliar para enviar ángulos al ESP32
+def enviar_angulo_al_esp32(servo, angulo_convertido):
+    esp32_url = f"{ESP32_IP}/set_angle?motor={servo}&angle={angulo_convertido}"
+    try:
+        response = requests.get(esp32_url)
+        if response.status_code != 200:
+            print(f"Error al establecer ángulo para servo {servo}: {response.status_code}")
+    except requests.RequestException as e:
+        print(f"Error de conexión al ESP32 para servo {servo}: {e}")

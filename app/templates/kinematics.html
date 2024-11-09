@@ -11,20 +11,12 @@
             border-collapse: collapse;
             margin-top: 10px;
         }
-
         .matrix-table td, .matrix-table th {
             border: 1px solid #ddd;
-            padding: 8px;
             text-align: center;
         }
-
         .matrix-table th {
             background-color: #f2f2f2;
-            font-weight: bold;
-        }
-
-        .matrix-table tr:nth-child(even) {
-            background-color: #f9f9f9;
         }
     </style>
 </head>
@@ -46,43 +38,57 @@
 
     <main>
         <section class="content-panel">
-            <div class="form-matrix-container">
-                <div class="form-container">
-                    <h2 class="section-title">Forward Kinematics</h2>
-                    <form id="kinematics-form">
-                        <label for="q1">Ángulo para q1 (°):</label>
-                        <input type="number" id="q1" name="q1" required>
-                        
-                        <label for="q2">Ángulo para q2 (°):</label>
-                        <input type="number" id="q2" name="q2" required>
-                        
-                        <label for="q3">Ángulo para q3 (°):</label>
-                        <input type="number" id="q3" name="q3" required>
-                        
-                        <label for="q4">Ángulo para q4 (°):</label>
-                        <input type="number" id="q4" name="q4" required>
-                        
-                        <label for="q5">Ángulo para q5 (°):</label>
-                        <input type="number" id="q5" name="q5" required>
-                        
-                        <button type="submit">Calcular Cinemática</button>
-                    </form>
-                </div>
+            <div class="form-container">
+                <h2 class="section-title">Control de Servos</h2>
+                
+                <!-- Deslizadores de servos -->
+                <label for="slider_servo1">Ángulo para Servo 1 (q1) (°):</label>
+                <input type="range" id="slider_servo1" min="-90" max="90" value="0" oninput="updateAngle(1, this.value)">
+                <input type="number" id="input_servo1" min="-90" max="90" value="0" oninput="updateSlider(1, this.value)">
+                <br>
 
-                <div class="matrix-container">
-                    <h3>Matriz de Transformación:</h3>
-                    <table id="matrix-output" class="matrix-table">
-                        <!-- Filas y columnas se agregarán dinámicamente -->
-                    </table>
+                <label for="slider_servo2">Ángulo para Servo 2 (q2.1) y Servo 3 (q2.2 en espejo) (°):</label>
+                <input type="range" id="slider_servo2" min="-90" max="90" value="0" oninput="updateAngle(2, this.value)">
+                <input type="number" id="input_servo2" min="-90" max="90" value="0" oninput="updateSlider(2, this.value)">
+                <br>
 
-                    <h3>Posición:</h3>
-                    <p id="position-output">Px: ---, Py: ---, Pz: ---</p>
+                <label for="slider_servo4">Ángulo para Servo 4 (q3) (°):</label>
+                <input type="range" id="slider_servo4" min="-90" max="90" value="0" oninput="updateAngle(4, this.value)">
+                <input type="number" id="input_servo4" min="-90" max="90" value="0" oninput="updateSlider(4, this.value)">
+                <br>
 
-                    <h3>Ángulos de Euler:</h3>
-                    <p id="euler-output">a: ---, b: ---, g: ---</p>
+                <label for="slider_servo5">Ángulo para Servo 5 (q4) (°):</label>
+                <input type="range" id="slider_servo5" min="-90" max="90" value="0" oninput="updateAngle(5, this.value)">
+                <input type="number" id="input_servo5" min="-90" max="90" value="0" oninput="updateSlider(5, this.value)">
+                <br>
 
-                    <p id="error-message" style="color: red;"></p>
-                </div>
+                <label for="slider_servo6">Ángulo para Servo 6 (q5) (°):</label>
+                <input type="range" id="slider_servo6" min="-90" max="90" value="0" oninput="updateAngle(6, this.value)">
+                <input type="number" id="input_servo6" min="-90" max="90" value="0" oninput="updateSlider(6, this.value)">
+                <br>
+
+                <!-- Control para el gripper con límites de 0 a 90 grados -->
+                <label for="slider_gripper">Ángulo para Griper (Servo 7) (°):</label>
+                <input type="range" id="slider_gripper" min="0" max="90" value="0" oninput="updateAngle(7, this.value)">
+                <input type="number" id="input_gripper" min="0" max="90" value="0" oninput="updateSlider(7, this.value)">
+                <br>
+
+                <button onclick="calcularCinematica()">Calcular Cinemática</button>
+            </div>
+
+            <div class="matrix-container">
+                <h3>Matriz de Transformación:</h3>
+                <table id="matrix-output" class="matrix-table">
+                    <!-- Filas y columnas se agregarán dinámicamente -->
+                </table>
+
+                <h3>Posición:</h3>
+                <p id="position-output">Px: ---, Py: ---, Pz: ---</p>
+
+                <h3>Ángulos de Euler:</h3>
+                <p id="euler-output">a: ---, b: ---, g: ---</p>
+
+                <p id="error-message" style="color: red;"></p>
             </div>
         </section>
     </main>
@@ -92,68 +98,90 @@
     </footer>
 
     <script>
-        document.getElementById("kinematics-form").addEventListener("submit", async (e) => {
-            e.preventDefault();  // Prevenir que el formulario se envíe de forma tradicional
-            
-            // Capturar valores de los ángulos
-            const data = {
-                q1: parseFloat(document.getElementById("q1").value),
-                q2: parseFloat(document.getElementById("q2").value),
-                q3: parseFloat(document.getElementById("q3").value),
-                q4: parseFloat(document.getElementById("q4").value),
-                q5: parseFloat(document.getElementById("q5").value)
+        function updateAngle(servo, angle) {
+            const inputField = document.getElementById(servo === 7 ? 'input_gripper' : `input_servo${servo}`);
+            if (inputField) {
+                inputField.value = angle;
+                sendAngleToBackend(servo, angle);
+            } else {
+                console.error(`El campo de entrada para servo ${servo} no se encontró.`);
+            }
+        }
+
+        function updateSlider(servo, angle) {
+            const sliderField = document.getElementById(servo === 7 ? 'slider_gripper' : `slider_servo${servo}`);
+            if (sliderField) {
+                sliderField.value = angle;
+                sendAngleToBackend(servo, angle);
+            } else {
+                console.error(`El deslizador para servo ${servo} no se encontró.`);
+            }
+        }
+
+        function sendAngleToBackend(servo, angle) {
+            fetch("/set_angle", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ motor: servo, angle: parseInt(angle) })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        console.error("Error:", data.error);
+                    });
+                } else {
+                    console.log(`Servo ${servo} set to ${angle} degrees`);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function calcularCinematica() {
+            const angles = {
+                q1: parseFloat(document.getElementById("input_servo1").value),
+                q2: parseFloat(document.getElementById("input_servo2").value),
+                q3: parseFloat(document.getElementById("input_servo4").value),
+                q4: parseFloat(document.getElementById("input_servo5").value),
+                q5: parseFloat(document.getElementById("input_servo6").value),
             };
 
-            try {
-                // Enviar la solicitud POST al servidor
-                const response = await fetch("/Kinematics", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (!response.ok) {
-                    throw new Error("Error en la respuesta del servidor");
-                }
-
-                // Manejar la respuesta
-                const result = await response.json();
-                document.getElementById("error-message").innerText = "";  // Limpiar mensaje de error anterior
-
-                // Mostrar la matriz de transformación en formato de tabla
+            fetch("/Kinematics", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(angles)
+            })
+            .then(response => response.json())
+            .then(result => {
                 const matrixTable = document.getElementById("matrix-output");
-                matrixTable.innerHTML = ""; // Limpiar contenido previo
+                matrixTable.innerHTML = "";
 
-                let matrix = result.matrix;
-                
-                // Asegurarse de que `matrix` sea un array de arrays
-                if (typeof matrix === "string") {
-                    matrix = JSON.parse(matrix);
-                }
-
-                matrix.forEach(row => {
-                    const tr = document.createElement("tr");
-                    row.forEach(value => {
-                        const td = document.createElement("td");
-                        td.innerText = parseFloat(value).toFixed(4); // Mostrar con 4 decimales
-                        tr.appendChild(td);
+                if (Array.isArray(result.matrix)) {
+                    result.matrix.forEach(row => {
+                        const tr = document.createElement("tr");
+                        row.forEach(value => {
+                            const td = document.createElement("td");
+                            td.innerText = parseFloat(value).toFixed(4);
+                            tr.appendChild(td);
+                        });
+                        matrixTable.appendChild(tr);
                     });
-                    matrixTable.appendChild(tr);
-                });
 
-                // Mostrar la posición Px, Py, Pz
-                document.getElementById("position-output").innerText = `Px: ${result.Px}, Py: ${result.Py}, Pz: ${result.Pz}`;
-
-                // Mostrar los ángulos de Euler a, b, g
-                document.getElementById("euler-output").innerText = `a: ${result.a}, b: ${result.b}, g: ${result.g}`;
-            } catch (error) {
-                // Mostrar mensaje de error
-                document.getElementById("error-message").innerText = error.message || "Error desconocido";
-                console.error("Error al realizar la solicitud:", error);
-            }
-        });
+                    document.getElementById("position-output").innerText = `Px: ${result.Px}, Py: ${result.Py}, Pz: ${result.Pz}`;
+                    document.getElementById("euler-output").innerText = `a: ${result.a}, b: ${result.b}, g: ${result.g}`;
+                } else {
+                    console.error("Error: Matriz de transformación no recibida correctamente.");
+                    document.getElementById("error-message").innerText = "Error al calcular la cinemática.";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("error-message").innerText = "Error al calcular la cinemática.";
+            });
+        }
     </script>
 </body>
 </html>

@@ -1,5 +1,12 @@
 import json
 import os
+import subprocess
+import requests
+import sys
+
+# Usar el intérprete del entorno virtual
+subprocess.run([sys.executable, 'C:/sers/enfparedes/Contacts/Hand_Solo_Full_Proyect/app/utils/kinematics/botar_secuencia.py'])
+
 
 class TranscriptionManager:
     def __init__(self, transcripciones_path):
@@ -51,12 +58,29 @@ class KeywordDetector:
             for accion, palabras_clave in self.acciones.items():
                 if any(palabra in transcripcion_lower for palabra in palabras_clave):
                     print(f"Acción detectada: {accion}")
+                    
+                    # Si se detecta la acción "botar", ejecutar la secuencia de botar
+                    if accion == "botar":
+                        self.ejecutar_botar_secuencia()
+                    
                     return accion
             print("No se detectaron acciones.")
             return None
         else:
             print("Transcripción vacía o nula.")
             return None
+        
+    def ejecutar_botar_secuencia(self):
+        """Ejecuta el script de la secuencia de botar."""
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        botar_script_path = os.path.join(BASE_DIR, "../kinematics/botar_secuencia.py")
+
+        try:
+            # Ejecutar el script de secuencia
+            subprocess.Popen(["python", botar_script_path])
+            print("Secuencia de botar iniciada.")
+        except Exception as e:
+            print(f"Error al iniciar la secuencia de botar: {e}")
 
 def guardar_resultado_accion(accion):
     """Guarda la acción detectada en un archivo JSON para que Flask pueda leerlo."""
