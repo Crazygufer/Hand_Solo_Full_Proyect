@@ -194,7 +194,7 @@ footer {
     color: white;
     text-align: center;
     padding: 1rem;
-    margin-top: 20px; /* Añadir un margen superior para separación */
+    margin-top: 20px; 
     width: 100%;
 }
 
@@ -225,3 +225,23 @@ button:hover {
     background-color: #df7c7c;  /* Cambia de color en hover */
 }
 
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.matrix-table td, .matrix-table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.matrix-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.matrix-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}

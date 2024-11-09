@@ -28,7 +28,7 @@ def calculate_transformation_matrix(q1, q2, q3, q4, q5):
             [R21, R22, R23, Py],
             [R31, R32, R33, Pz],
             [0,   0,   0,   1]
-        ])
+        ]).evalf(4)
 
         # Calcular los ángulos de Euler a, b, g
         b = sym.atan2(-R31, sym.sqrt(R32**2 + R33**2))
@@ -36,16 +36,19 @@ def calculate_transformation_matrix(q1, q2, q3, q4, q5):
         g = sym.atan2(R32 / sym.cos(b), R33 / sym.cos(b))
 
         # Convertir a, b, g a grados
-        a_degree = sym.deg(a).evalf(4)
-        b_degree = sym.deg(b).evalf(4)
-        g_degree = sym.deg(g).evalf(4)
+        a_degree = float(sym.deg(a).evalf(4))
+        b_degree = float(sym.deg(b).evalf(4))
+        g_degree = float(sym.deg(g).evalf(4))
 
+        # Convertir la matriz y otros valores a un formato JSON-friendly
+        transformation_matrix_list = [[float(element) for element in row] for row in transformation_matrix.tolist()]
+        
         # Retornar la matriz de transformación y los valores adicionales
         return {
-            "matrix": transformation_matrix.evalf(4),
-            "Px": Px.evalf(4),
-            "Py": Py.evalf(4),
-            "Pz": Pz.evalf(4),
+            "matrix": transformation_matrix_list,
+            "Px": float(Px.evalf(4)),
+            "Py": float(Py.evalf(4)),
+            "Pz": float(Pz.evalf(4)),
             "a": a_degree,
             "b": b_degree,
             "g": g_degree

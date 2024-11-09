@@ -11,7 +11,6 @@ class TranscriptionManager:
             with open(self.transcripciones_path, "r", encoding="utf-8") as archivo:
                 datos = json.load(archivo)
                 if datos:
-                    # Filtrar las transcripciones no vacías
                     transcripciones_validas = [t["transcription"] for t in datos if t["transcription"].strip() != ""]
                     if transcripciones_validas:
                         return transcripciones_validas[-1]
@@ -27,7 +26,6 @@ class TranscriptionManager:
         except json.JSONDecodeError:
             print("Error al leer el archivo de transcripciones.")
             return None
-
 
 class KeywordDetector:
     def __init__(self, acciones_path):
@@ -60,10 +58,21 @@ class KeywordDetector:
             print("Transcripción vacía o nula.")
             return None
 
+def guardar_resultado_accion(accion):
+    """Guarda la acción detectada en un archivo JSON para que Flask pueda leerlo."""
+    resultado = {
+        "keyword": accion or "Ninguna palabra clave detectada",
+        "action": f"Ejecutar acción: {accion}" if accion else "Esperando comandos..."
+    }
+    
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    resultado_path = os.path.join(BASE_DIR, "../../transcripciones/resultados_palabras_clave.json")
+    
+    with open(resultado_path, "w", encoding="utf-8") as f:
+        json.dump(resultado, f, ensure_ascii=False, indent=4)
 
 # Punto de entrada para el sistema
 if __name__ == "__main__":
-    # Rutas de los archivos JSON
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     transcripciones_path = os.path.join(BASE_DIR, "../../transcripciones/transcripciones.json")
     acciones_path = os.path.join(BASE_DIR, "actions.json")
@@ -83,9 +92,7 @@ if __name__ == "__main__":
         # Detectar la acción basada en la última transcripción
         accion_detectada = keyword_detector.detectar_accion(ultima_transcripcion)
 
-        if accion_detectada:
-            print(f"Acción detectada correctamente: {accion_detectada}")
-        else:
-            print("No se detectó ninguna acción.")
+        # Guardar la acción detectada en un archivo JSON para que Flask la lea
+        guardar_resultado_accion(accion_detectada)
     else:
         print("No se pudo cargar la última transcripción.")

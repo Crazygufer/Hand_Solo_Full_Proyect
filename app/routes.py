@@ -6,10 +6,13 @@ import subprocess
 import json
 import os
 import sys
+import time
 
 # Variable global para almacenar el proceso del script
 process = None
 transcription_data = ""  # Variable global para almacenar la transcripción
+current_session_id = None  # Identificador único para la sesión actual
+keyword_detected = ""  # Última palabra clave detect
 
 # Ruta para la página principal (index)
 @app.route('/')
@@ -174,3 +177,119 @@ def kinematics():
 @app.route('/modo_automatico')
 def modo_automatico():
     return render_template('modo_automatico.html')
+
+
+@app.route('/automatic_mode/start_listening', methods=['GET'])
+def automatic_mode_start_listening():
+    global process, current_session_id, transcription_data, keyword_detected
+    if process is None:
+        # Genera un identificador de sesión único
+        current_session_id = str(int(time.time()))
+        
+        # Limpia los datos de la última transcripción y palabra clave
+        transcription_data = ""
+        keyword_detected = ""
+
+        # Ejecuta el script de escucha como proceso independiente, pasando el session_id
+        process = subprocess.Popen([sys.executable, "app/utils/voice/whisper_post_transcribe.py", current_session_id])
+        return jsonify({"status": "Modo Automático - Escucha iniciada", "session_id": current_session_id})
+    else:
+        return jsonify({"status": "Modo Automático - La escucha ya está en curso"})
+
+
+@app.route('/automatic_mode/stop_listening', methods=['GET'])
+def automatic_mode_stop_listening():
+    global process, transcription_data, keyword_detected, current_session_id
+    if process is not None:
+        process.terminate()
+        process = None
+        transcription_data = ""  # Restablece transcripción
+        keyword_detected = ""  # Restablece palabra clave
+        current_session_id = None  # Restablece session_id
+        return jsonify({"status": "Modo Automático - Escucha detenida"})
+    else:
+        return jsonify({"status": "Modo Automático - No hay escucha en curso"})
+
+# Endpoint para obtener el estado actual en modo automático
+@app.route('/automatic_mode/get_state', methods=['GET'])
+def automatic_mode_get_state():
+    global transcription_data
+    return jsonify({"state": transcription_data or "Esperando activación en Modo Automático..."})
+
+# Endpoint para obtener la última transcripción en modo automático
+@app.route('/automatic_mode/get_transcription', methods=['GET'])
+def automatic_mode_get_transcription():
+    transcriptions_file = os.path.join('app', 'transcripciones', 'transcripciones.json')
+
+    try:
+        with open(transcriptions_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if data:
+                last_transcription = data[-1]
+                return jsonify({
+                    "transcription": f"Última transcripción en Modo Automático: {last_transcription['transcription']}",
+                    "timestamp": last_transcription['timestamp']
+                })
+            else:
+                return jsonify({"transcription": "No hay transcripciones disponibles en Modo Automático."})
+    except FileNotFoundError:
+        return jsonify({"transcription": "El archivo de transcripciones no se encontró en Modo Automático."})
+    except json.JSONDecodeError:
+        return jsonify({"transcription": "Error al leer el archivo de transcripciones en Modo Automático."})
+
+@app.route('/update_transcription_auto', methods=['POST'])
+def update_transcription_auto():
+    global transcription_data, keyword_detected, current_session_id
+
+    # Obtiene el identificador de sesión desde la solicitud
+    session_id = request.json.get('session_id')
+    
+    # Verifica si la transcripción pertenece a la sesión actual
+    if session_id == current_session_id:
+        transcription_data = request.json.get('transcription', '')
+        keyword_detected = request.json.get('keyword', '')
+        return jsonify({"status": "Transcripción recibida para la sesión actual"})
+    else:
+        return jsonify({"status": "Transcripción ignorada (sesión antigua)"})
+
+# Endpoint para obtener la última transcripción en modo automático
+@app.route('/automatic_mode/get_transcription', methods=['GET'])
+def get_last_transcription():
+    transcriptions_file = os.path.join('app', 'transcripciones', 'transcripciones.json')
+
+    try:
+        with open(transcriptions_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if data:
+                last_transcription = data[-1]
+                transcription_text = last_transcription.get("transcription", "Aquí aparecerá la transcripción...")
+                return jsonify({
+                    "transcription": transcription_text,
+                    "timestamp": last_transcription.get("timestamp", "")
+                })
+            else:
+                return jsonify({"transcription": "No hay transcripciones disponibles.", "timestamp": ""})
+    except FileNotFoundError:
+        return jsonify({"transcription": "El archivo transcripciones.json no se encontró.", "timestamp": ""})
+    except json.JSONDecodeError:
+        return jsonify({"transcription": "Error al leer el archivo de transcripciones.", "timestamp": ""})
+
+# Endpoint para obtener la palabra clave detectada y la acción del robot en modo automático
+@app.route('/automatic_mode/get_keyword', methods=['GET'])
+def get_detected_keyword():
+    result_file = os.path.join('app', 'transcripciones', 'resultados_palabras_clave.json')
+
+    try:
+        with open(result_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return jsonify(data)
+    except FileNotFoundError:
+        return jsonify({
+            "keyword": "Ninguna palabra clave detectada aún.",
+            "action": "Esperando comandos..."
+        })
+    except json.JSONDecodeError:
+        return jsonify({
+            "keyword": "Error al leer el archivo de resultados.",
+            "action": "Esperando comandos..."
+        })

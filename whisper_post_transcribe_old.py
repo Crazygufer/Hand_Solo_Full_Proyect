@@ -7,12 +7,11 @@ from datetime import datetime
 import sys
 import pyttsx3
 import requests
-import subprocess
 
-# Configuración de pyttsx3 para la respuesta de voz
+# Configurar pyttsx3 para la respuesta de voz
 engine = pyttsx3.init()
-engine.setProperty('rate', 150)
-engine.setProperty('volume', 0.9)
+engine.setProperty('rate', 150)  # Ajusta la velocidad de la voz
+engine.setProperty('volume', 0.9)  # Ajusta el volumen (0.0 a 1.0)
 
 # Definir rutas específicas para archivos
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -27,10 +26,14 @@ os.makedirs(TRANSCRIPCIONES_DIR, exist_ok=True)
 FLASK_URL = 'http://127.0.0.1:5000/update_transcription_auto'
 
 # Obtener el session_id del argumento pasado por `routes.py`
-session_id = sys.argv[1] if len(sys.argv) > 1 else str(int(time.time()))
+if len(sys.argv) > 1:
+    session_id = sys.argv[1]
+else:
+    session_id = str(int(time.time()))  # Genera un session_id si no se pasa
 
 class AudioManager:
-    def __init__(self):
+    def __init__(self, audio_dir):
+        self.audio_dir = audio_dir
         self.recognizer = sr.Recognizer()
         self.mic = sr.Microphone()
 
@@ -38,7 +41,7 @@ class AudioManager:
         with self.mic as source:
             print("Grabando audio...")
             audio_data = self.recognizer.listen(source, timeout=10)
-            audio_filename = os.path.join(AUDIO_DIR, "audio_temp.wav")
+            audio_filename = os.path.join(self.audio_dir, "audio_temp.wav")
             with open(audio_filename, "wb") as f:
                 f.write(audio_data.get_wav_data())
             return audio_filename
@@ -48,12 +51,13 @@ class AudioManager:
             os.remove(filename)
 
 class TranscriptionManager:
-    def __init__(self, model):
+    def __init__(self, transcripciones_dir, model):
+        self.transcripciones_dir = transcripciones_dir
         self.model = model
 
     def transcribir_audio(self, audio_filename):
         if os.path.exists(audio_filename):
-            print(f"Transcribiendo el archivo de audio: {audio_filename}")
+            print(f"Archivo de audio encontrado: {audio_filename}, iniciando transcripción...")
             result = self.model.transcribe(audio_filename, language="es")
             return result["text"]
         else:
@@ -61,7 +65,7 @@ class TranscriptionManager:
             return ""
 
     def guardar_transcripcion(self, transcription_text, session_id):
-        transcriptions_file = os.path.join(TRANSCRIPCIONES_DIR, "transcripciones.json")
+        transcriptions_file = os.path.join(self.transcripciones_dir, "transcripciones.json")
 
         if not os.path.exists(transcriptions_file):
             with open(transcriptions_file, 'w', encoding='utf-8') as f:
@@ -110,11 +114,11 @@ class VoiceAssistant:
 
         print("Esperando la wake word: 'oye handy'...")
         self.send_transcription_to_flask("Esperando la wake word: 'oye handy'...")
-
         while True:
             with mic as source:
                 recognizer.adjust_for_ambient_noise(source)
                 print("Escuchando...")
+                self.send_transcription_to_flask("Escuchando...")
                 audio = recognizer.listen(source)
 
             try:
@@ -122,13 +126,17 @@ class VoiceAssistant:
                 print(f"Has dicho: {text}")
                 self.send_transcription_to_flask(f"Has dicho: {text}")
 
+                if "oye handy salir" in text:
+                    print("Frase de salida detectada: 'oye handy salir'. Terminando programa...")
+                    self.send_transcription_to_flask("Frase de salida detectada: 'oye handy salir'. Terminando Programa...")
+                    self.responder_voz("Adiós, hasta la próxima.")
+                    sys.exit()
+
                 if "oye handy" in text:
                     print("Wake word detectada, comenzando transcripción...")
                     self.send_transcription_to_flask("Wake word detectada, comenzando transcripción...")
                     self.responder_voz("Hola, ¿en qué puedo ayudarte?")
-                    # Llama a la función para grabar y transcribir el comando y luego salir del bucle
                     self.iniciar_transcripcion()
-                    break  # Salir del bucle después de la transcripción
 
             except sr.UnknownValueError:
                 print("No se entendió el audio.")
@@ -141,27 +149,19 @@ class VoiceAssistant:
         audio_filename = self.audio_manager.grabar_audio()
         transcribed_text = self.transcription_manager.transcribir_audio(audio_filename)
 
-        # Guardar en JSON después de transcribir
-        self.transcription_manager.guardar_transcripcion(transcribed_text, self.session_id)
-
-        # Enviar a Flask la transcripción para mostrarla en la interfaz
+        # Enviar la transcripción a Flask
         self.send_transcription_to_flask(transcribed_text)
 
-        # Eliminar el archivo de audio temporal y terminar
-        self.audio_manager.eliminar_audio(audio_filename)
-        print("Proceso de transcripción completado. Terminando el programa.")
+        # Guardar la transcripción en el archivo JSON con el session_id
+        self.transcription_manager.guardar_transcripcion(transcribed_text, self.session_id)
 
-        # Llamada al script de detección de palabras clave después de la transcripción
-        try:
-            subprocess.run(["python", "app/utils/detect_action_words/detect_action_words.py"], check=True)
-            print("Script de búsqueda de palabras clave ejecutado exitosamente.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error al ejecutar el script de búsqueda de palabras clave: {e}")
+        # Eliminar el archivo de audio temporal
+        self.audio_manager.eliminar_audio(audio_filename)
 
 # Instanciar las clases
-audio_manager = AudioManager()
-transcription_manager = TranscriptionManager(whisper.load_model("medium"))
+audio_manager = AudioManager(AUDIO_DIR)
+transcription_manager = TranscriptionManager(TRANSCRIPCIONES_DIR, whisper.load_model("medium"))
 voice_assistant = VoiceAssistant(audio_manager, transcription_manager, FLASK_URL, session_id)
 
-# Iniciar la detección de la wake word y ejecutar la transcripción
+# Iniciar la detección de la wake word
 voice_assistant.detectar_wake_word()

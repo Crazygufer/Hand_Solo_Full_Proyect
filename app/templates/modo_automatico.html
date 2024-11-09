@@ -29,6 +29,9 @@
                 <div class="state-container">
                     <h3>Estado de la Escucha:</h3>
                     <p id="state-text">Esperando activación...</p>
+                    <!-- Botones para iniciar y detener la escucha -->
+                    <button id="start-listening">Iniciar Escucha</button>
+                    <button id="stop-listening">Detener Escucha</button>
                 </div>
 
                 <!-- Panel de Transcripción -->
@@ -57,48 +60,61 @@
     </footer>
 
     <script>
-        let isListening = false;  // Variable para controlar si el sistema está en escucha
-
-        // Función para iniciar la escucha
+        let isListening = false;
+        let sessionId = null;
+    
+        // Función para iniciar la escucha en modo automático
         document.getElementById('start-listening').addEventListener('click', function() {
-            fetch('/start_listening')
+            fetch('/automatic_mode/start_listening')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('state-text').innerText = "Escucha activada";
+                    console.log("Escucha activada en Modo Automático");
+                    document.getElementById('state-text').innerText = "Escucha activada en Modo Automático";
+                    document.getElementById('transcription-text').innerText = "Esperando transcripción...";
+                    document.getElementById('keyword-text').innerText = "Ninguna palabra clave detectada aún.";
+                    document.getElementById('action-text').innerText = "Esperando comandos...";
+                    
+                    sessionId = data.session_id;
                     isListening = true;
                     startPolling();
                 });
         });
-
-        // Función para detener la escucha
+    
+        // Función para detener la escucha en modo automático
         document.getElementById('stop-listening').addEventListener('click', function() {
-            fetch('/stop_listening')
+            console.log("Botón de detener escucha presionado");  // Mensaje de verificación
+    
+            fetch('/automatic_mode/stop_listening')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('state-text').innerText = "Escucha detenida";
+                    console.log("Escucha detenida en Modo Automático");  // Mensaje de verificación
+                    document.getElementById('state-text').innerText = "Esperando activación...";
+                    document.getElementById('transcription-text').innerText = "Aquí aparecerá la transcripción...";
+                    document.getElementById('keyword-text').innerText = "Ninguna palabra clave detectada aún.";
+                    document.getElementById('action-text').innerText = "Esperando comandos...";
+                    
                     isListening = false;
-                });
+                    sessionId = null;
+                })
+                .catch(error => console.error("Error al detener la escucha:", error));
         });
-
-        // Polling para actualizar estado, transcripción y palabra clave
+    
+        // Polling para actualizar el estado, transcripción y palabra clave en modo automático
         function updateData() {
             if (isListening) {
-                // Actualizar el estado
-                fetch('/get_state')
+                fetch('/automatic_mode/get_state')
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('state-text').innerText = data.state;
                     });
-
-                // Actualizar la transcripción
-                fetch('/get_transcription')
+    
+                fetch('/automatic_mode/get_transcription')
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('transcription-text').innerText = data.transcription || "Esperando transcripción...";
                     });
-
-                // Actualizar palabra clave detectada
-                fetch('/get_keyword')  // Supuesto endpoint para palabras clave
+    
+                fetch('/automatic_mode/get_keyword')
                     .then(response => response.json())
                     .then(data => {
                         document.getElementById('keyword-text').innerText = data.keyword || "Ninguna palabra clave detectada aún.";
@@ -106,11 +122,13 @@
                     });
             }
         }
-
+    
         function startPolling() {
             setInterval(updateData, 2000);  // Actualizar cada 2 segundos
         }
     </script>
+    
+    
 
 </body>
 </html>
