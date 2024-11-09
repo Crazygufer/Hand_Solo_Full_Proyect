@@ -5,5 +5,5 @@
     "girar_derecha": ["girar derecha", "derecha", "gira a la derecha"],
     "avanzar": ["avanzar", "adelante", "ir hacia adelante"],
     "retroceder": ["retroceder", "atrás", "moverse hacia atrás"],
-    "botar": ["botar", "tirar", "desechar", "basura"]
+    "botar": ["botar", "tirar", "desechar", "basura", "bota"]
 }

@@ -2,6 +2,8 @@ from flask import render_template, request, redirect, url_for, flash, jsonify
 from app import app
 from app.utils.function.auth import validar_usuario, usuario_existe, registrar_usuario
 from app.utils.kinematics.Kinematics import calculate_transformation_matrix
+from app.utils.kinematics.botar_secuencia import ServoController, BotarSecuencia
+from app.utils.detect_action_words.detect_action_words import KeywordDetector  
 import subprocess
 import json
 import os
@@ -17,6 +19,8 @@ keyword_detected = ""  # Última palabra clave detect
 
 ESP32_IP = "http://192.168.56.46"  # Reemplaza con la IP de tu ESP32
 
+servo_controller = ServoController(ESP32_IP)  # Instancia de controlador de servos
+secuencia_botar = BotarSecuencia(servo_controller)  # Instancia de la secuencia de botar
 # Funciones de conversión para los servos
 def convertir_grados_coppelia_a_real_servo1(angulo_coppelia):
     return angulo_coppelia + 90
@@ -362,3 +366,34 @@ def enviar_angulo_al_esp32(servo, angulo_convertido):
             print(f"Error al establecer ángulo para servo {servo}: {response.status_code}")
     except requests.RequestException as e:
         print(f"Error de conexión al ESP32 para servo {servo}: {e}")
+
+# Ruta para ejecutar la secuencia de botar
+@app.route('/ejecutar_botar', methods=['POST'])
+def ejecutar_botar():
+    try:
+        # Ejecuta la secuencia de botar usando el método de la clase BotarSecuencia
+        secuencia_botar.ejecutar_secuencia()
+        return jsonify({"message": "Secuencia de botar ejecutada exitosamente"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Error al ejecutar secuencia de botar: {e}"}), 500
+    
+
+
+
+# Ruta para recibir la transcripción y detectar palabras clave
+@app.route('/detect_action', methods=['POST'])
+def detect_action():
+    data = request.get_json()
+    transcription_text = data.get("transcription", "")
+    
+    # Define la ruta correcta para el archivo actions.json
+    acciones_path = r"C:\Users\enfparedes\Contacts\Hand_Solo_Full_Proyect\app\utils\detect_action_words\actions.json"
+    keyword_detector = KeywordDetector(acciones_path)
+    
+    # Detecta la acción basada en la transcripción recibida
+    accion_detectada = keyword_detector.detectar_accion(transcription_text)
+    
+    if accion_detectada:
+        return jsonify({"status": "Acción detectada", "keyword": accion_detectada}), 200
+    else:
+        return jsonify({"status": "Sin acción detectada"}), 200

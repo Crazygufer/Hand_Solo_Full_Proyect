@@ -7,7 +7,6 @@ from datetime import datetime
 import sys
 import pyttsx3
 import requests
-import subprocess
 
 # Configuración de pyttsx3 para la respuesta de voz
 engine = pyttsx3.init()
@@ -23,8 +22,10 @@ TRANSCRIPCIONES_DIR = os.path.join(BASE_DIR, "transcripciones")
 os.makedirs(AUDIO_DIR, exist_ok=True)
 os.makedirs(TRANSCRIPCIONES_DIR, exist_ok=True)
 
-# URL del servidor Flask
-FLASK_URL = 'http://127.0.0.1:5000/update_transcription_auto'
+# URLs de Flask
+FLASK_URL_TRANSCRIPTION = 'http://127.0.0.1:5000/update_transcription_auto'
+FLASK_URL_DETECT_ACTION = 'http://127.0.0.1:5000/detect_action'
+FLASK_URL_EXECUTE_BOTAR = 'http://127.0.0.1:5000/ejecutar_botar'
 
 # Obtener el session_id del argumento pasado por `routes.py`
 session_id = sys.argv[1] if len(sys.argv) > 1 else str(int(time.time()))
@@ -82,10 +83,11 @@ class TranscriptionManager:
         print(f"Transcripción guardada en {transcriptions_file}")
 
 class VoiceAssistant:
-    def __init__(self, audio_manager, transcription_manager, flask_url, session_id):
+    def __init__(self, audio_manager, transcription_manager, flask_url_transcription, flask_url_detect_action, session_id):
         self.audio_manager = audio_manager
         self.transcription_manager = transcription_manager
-        self.flask_url = flask_url
+        self.flask_url_transcription = flask_url_transcription
+        self.flask_url_detect_action = flask_url_detect_action
         self.session_id = session_id
 
     def responder_voz(self, mensaje):
@@ -99,7 +101,7 @@ class VoiceAssistant:
             "session_id": self.session_id
         }
         try:
-            requests.post(self.flask_url, json=data)
+            requests.post(self.flask_url_transcription, json=data)
             print(f"Transcripción enviada al servidor: {transcription}")
         except requests.exceptions.RequestException as e:
             print(f"Error al enviar la transcripción al servidor: {e}")
@@ -126,9 +128,8 @@ class VoiceAssistant:
                     print("Wake word detectada, comenzando transcripción...")
                     self.send_transcription_to_flask("Wake word detectada, comenzando transcripción...")
                     self.responder_voz("Hola, ¿en qué puedo ayudarte?")
-                    # Llama a la función para grabar y transcribir el comando y luego salir del bucle
                     self.iniciar_transcripcion()
-                    break  # Salir del bucle después de la transcripción
+                    break
 
             except sr.UnknownValueError:
                 print("No se entendió el audio.")
@@ -144,24 +145,49 @@ class VoiceAssistant:
         # Guardar en JSON después de transcribir
         self.transcription_manager.guardar_transcripcion(transcribed_text, self.session_id)
 
-        # Enviar a Flask la transcripción para mostrarla en la interfaz
+        # Enviar la transcripción a Flask
         self.send_transcription_to_flask(transcribed_text)
+
+        # Enviar la transcripción a la ruta de detección de palabras clave en Flask
+        self.enviar_a_detect_action(transcribed_text)
 
         # Eliminar el archivo de audio temporal y terminar
         self.audio_manager.eliminar_audio(audio_filename)
         print("Proceso de transcripción completado. Terminando el programa.")
 
-        # Llamada al script de detección de palabras clave después de la transcripción
+    def enviar_a_detect_action(self, transcription):
+        """Envía la transcripción a Flask para la detección de palabras clave."""
+        data = {"transcription": transcription, "session_id": self.session_id}
         try:
-            subprocess.run(["python", "app/utils/detect_action_words/detect_action_words.py"], check=True)
-            print("Script de búsqueda de palabras clave ejecutado exitosamente.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error al ejecutar el script de búsqueda de palabras clave: {e}")
+            response = requests.post(self.flask_url_detect_action, json=data)
+            if response.status_code == 200:
+                respuesta = response.json()
+                print("Transcripción enviada a Flask para detección de palabras clave.")
+                
+                # Revisar la respuesta de la detección y ejecutar la acción de botar si aplica
+                palabra_clave = respuesta.get("keyword")
+                if palabra_clave == "botar":
+                    self.ejecutar_botar()
+            else:
+                print(f"Error al enviar transcripción a Flask: {response.status_code}")
+        except requests.RequestException as e:
+            print(f"Error de conexión con Flask: {e}")
+
+    def ejecutar_botar(self):
+        """Envía una solicitud para ejecutar la secuencia de botar en Flask."""
+        try:
+            response = requests.post(FLASK_URL_EXECUTE_BOTAR)
+            if response.status_code == 200:
+                print("Secuencia de botar ejecutada exitosamente desde Flask.")
+            else:
+                print(f"Error en la solicitud de ejecución de botar: {response.status_code}")
+        except requests.RequestException as e:
+            print(f"Error al conectar con Flask para ejecutar botar: {e}")
 
 # Instanciar las clases
 audio_manager = AudioManager()
 transcription_manager = TranscriptionManager(whisper.load_model("medium"))
-voice_assistant = VoiceAssistant(audio_manager, transcription_manager, FLASK_URL, session_id)
+voice_assistant = VoiceAssistant(audio_manager, transcription_manager, FLASK_URL_TRANSCRIPTION, FLASK_URL_DETECT_ACTION, session_id)
 
 # Iniciar la detección de la wake word y ejecutar la transcripción
 voice_assistant.detectar_wake_word()
