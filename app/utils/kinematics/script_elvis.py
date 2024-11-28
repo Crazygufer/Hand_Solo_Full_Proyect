@@ -1,7 +1,7 @@
 import requests
 
 # Dirección IP del ESP32
-ESP32_IP = "http://192.168.56.46"  # Reemplaza esta IP con la IP que obtuviste
+ESP32_IP = "http://192.168.9.46"  # Reemplaza esta IP con la IP que obtuviste
 
 def establecer_angulo(motor, angulo):
     try:

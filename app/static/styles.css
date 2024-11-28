@@ -143,3 +143,11 @@ nav ul li a:hover {
     border-radius: 5px;
 }
 
+.team img {
+    max-width: 50%;
+    height: auto;
+    margin-top: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}

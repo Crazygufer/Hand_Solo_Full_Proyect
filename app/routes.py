@@ -17,7 +17,7 @@ transcription_data = ""  # Variable global para almacenar la transcripción
 current_session_id = None  # Identificador único para la sesión actual
 keyword_detected = ""  # Última palabra clave detect
 
-ESP32_IP = "http://192.168.56.46"  # Reemplaza con la IP de tu ESP32
+ESP32_IP = "http://192.168.9.46"  # Reemplaza con la IP de tu ESP32
 
 servo_controller = ServoController(ESP32_IP)  # Instancia de controlador de servos
 secuencia_botar = BotarSecuencia(servo_controller)  # Instancia de la secuencia de botar
@@ -376,7 +376,7 @@ def ejecutar_botar():
         return jsonify({"message": "Secuencia de botar ejecutada exitosamente"}), 200
     except Exception as e:
         return jsonify({"error": f"Error al ejecutar secuencia de botar: {e}"}), 500
-    
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 
 
 
