@@ -38,8 +38,8 @@ def establecer_angulo(motor, angulo):
 
 # Matriz con las posiciones para cada paso
 posiciones = [
-    [0, 0, 0, 0, 90, 90],    # Paso 1
-    [-35, 20, -20, -60, 90, 10],    # Paso 2
+    [0, 0, 0, 0, 90, 90],            # Paso 1
+    [-35, 20, -20, -60, 90, 10],     # Paso 2
     [-35, 30, -60, 60, 75, 90],      # Paso 3
     [-35, 60, -60, 60, 75, 90],      # Paso 4
     [-35, 60, -60, 30, 75, 90],      # Paso 5
@@ -52,13 +52,16 @@ posiciones = [
     [-35, 85, -35, 30, 75, 90],      # Paso 12
     [-35, 85, -30, 25, 75, 90],      # Paso 13
     [-35, 85, -30, 25, 75, 20],      # Paso 14
-    [-35, 60, -30, 25, 75, 20],      # Paso 15
-    [-35, 0, -30, 0, 75, 20],        # Paso 16
-    [-35, 0, -90, -20, 75, 20],      # Paso 17
-    [90, 0, -90, -20, 75, 20],       # Paso 18
-    [90, 60, -90, -20, 75, 90],       # Paso 19
-    [0, 0, -70, -20, 75, 90],
-    [0, 0, 0, 0, 90, 90]
+    [-35, 60, -30, 25, 75, 20],      # Paso 15   
+    [-35, 40, -30, 25, 75, 20],      # Paso 16
+    [-35, 0, -30, 0, 75, 20],        # Paso 17   
+    [-35, 0, -60, 0, 75, 20],        # Paso 18
+    [-35, 0, -90, -20, 75, 20],      # Paso 19
+    [90, 0, -90, -20, 75, 20],       # Paso 20
+    [90, 60, -90, -20, 75, 90],      # Paso 21
+    [0, 0, -70, -20, 75, 90],        # Paso 22
+    [0, 0, 0, -20, 75, 90]
+    [0, 0, 0, 0, 90, 90]             # Paso 23
 ]
 
 # Ejecutar cada paso
@@ -72,3 +75,5 @@ for i, angulos in enumerate(posiciones):
     establecer_angulo(5, convertir_grados_coppelia_a_real_servo6(angulos[4]))  # Servo 6
     establecer_angulo(6, convertir_grados_coppelia_a_real_gripper(angulos[5]))  # Servo 7 (Gripper)
     time.sleep(1)  # Espera 1 segundo entre cada paso
+
+
