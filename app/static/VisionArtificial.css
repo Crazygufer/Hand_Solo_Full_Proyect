@@ -1,0 +1,153 @@
+/* Estilo general */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Encabezado */
+.header-container {
+    display: flex;
+    align-items: center; 
+    justify-content: space-between; 
+    background-color: #ff0000;
+    padding: 1rem;
+    color: white;
+}
+
+.header-container img {
+    height: 80px;
+    margin-right: 10px;
+}
+
+.handi-link {
+    text-decoration: none; /* Elimina subrayado del enlace */
+    color: white; /* Mantiene el color blanco */
+}
+
+.header-title-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+}
+
+.handi-title {
+    font-size: 2.5rem;
+    margin: 0;
+    font-weight: bold;
+}
+
+.vision-title {
+    margin: 0;
+    font-size: 2rem;
+    text-align: center;
+    flex: 1;
+    font-weight: bold;
+}
+
+.handi-link:hover {
+    text-decoration: underline; /* Añade subrayado al pasar el cursor */
+}
+
+
+nav {
+    background-color: #ff0000;
+    overflow: hidden;
+    text-align: center;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: white;
+    padding: 14px 16px;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover {
+    background-color: #df7c7c;
+    border-radius: 5px;
+}
+
+/* Estilo del panel de video */
+.video-panel {
+    text-align: center;
+    margin: 2rem auto;
+    max-width: 800px;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.video-container {
+    margin: 0 auto;
+    width: 640px;
+    height: 480px;
+    border: 2px solid #ff0000;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#video-feed {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Estilo del panel de resultados */
+.data-panel {
+    margin: 2rem auto;
+    max-width: 800px;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.data-panel h2 {
+    color: #ff0000;
+    text-align: center;
+}
+
+#detection-list {
+    list-style-type: none;
+    padding: 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+#detection-list li {
+    background-color: #f9f9f9;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+/* Estilo del footer */
+footer {
+    background-color: #ff0000;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}

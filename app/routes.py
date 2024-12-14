@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, flash, jsonify
+from flask import render_template, request, redirect, url_for, flash, jsonify, Response
 from app import app
 from app.utils.function.auth import validar_usuario, usuario_existe, registrar_usuario
 from app.utils.kinematics.Kinematics import calculate_transformation_matrix
@@ -10,12 +10,14 @@ import os
 import sys
 import time
 import requests
+import cv2
 
 # Variable global para almacenar el proceso del script
 process = None
 transcription_data = ""  # Variable global para almacenar la transcripción
 current_session_id = None  # Identificador único para la sesión actual
 keyword_detected = ""  # Última palabra clave detect
+camera = cv2.VideoCapture(0)  # Cambia el índice si tienes múltiples cámaras
 
 ESP32_IP = "http://192.168.9.46"  # Reemplaza con la IP de tu ESP32
 
@@ -152,9 +154,9 @@ def get_state():
 def palabras_clave():
     return render_template('palabras_clave.html')
 
-@app.route('/vision_artificial')
-def vision_artificial():
-    return render_template('vision_artificial.html')
+#@app.route('/vision_artificial')
+#def vision_artificial():
+#    return render_template('vision_artificial.html')
 
 @app.route('/cinematica_directa')
 def cinematica_directa():
@@ -397,3 +399,24 @@ def detect_action():
         return jsonify({"status": "Acción detectada", "keyword": accion_detectada}), 200
     else:
         return jsonify({"status": "Sin acción detectada"}), 200
+    
+@app.route('/vision_artificial')
+def vision_artificial():
+    return render_template('VisionArtificial.html')
+
+def generate_video_feed():
+    while True:
+        success, frame = camera.read()
+        if not success:
+            break
+        else:
+            # Convertir el frame a JPEG
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_video_feed(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')

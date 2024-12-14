@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='VisionArtificial.css') }}">
+    <title>Handi Project - Visión Artificial</title>
+</head>
+<body>
+    <header class="header-container">
+        <img src="{{ url_for('static', filename='images/logo_5_transparent.png') }}" alt="Logo">
+        <a href="{{ url_for('panel') }}" class="handi-link">
+            <h1 class="handi-title">HANDI</h1>
+        </a>
+        <h1 class="vision-title">Visión Artificial</h1>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('transcripcion') }}">Transcripción de Voz</a></li>
+            <li><a href="{{ url_for('vision_artificial') }}">Visión Artificial</a></li>
+            <li><a href="{{ url_for('kinematics') }}">Kinematics</a></li>
+            <li><a href="{{ url_for('modo_automatico') }}">Modo Automático</a></li>
+        </ul>
+    </nav>
+    
+    <main>
+        <section class="video-panel">
+            <h2>Visualización en Tiempo Real</h2>
+            <div class="video-container">
+                <img id="video-feed" src="/video_feed" alt="Feed de Visión Artificial">
+            </div>
+        </section>
+
+        <section class="data-panel">
+            <h2>Resultados de Detección</h2>
+            <ul id="detection-list">
+                <li>No hay detecciones en este momento.</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Handi Project</p>
+    </footer>
+</body>
+</html>

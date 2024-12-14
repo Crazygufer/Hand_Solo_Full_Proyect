@@ -1,0 +1,10 @@
+path: c:\Users\enfparedes\Contacts\Hand_Solo_Full_Proyect\app\utils\vision_artificial\Version3\DataSet
+train: images/train
+val: images/val
+names:
+- Celular
+- franco
+- lapiz
+- Lata
+- llave
+- Reloj
